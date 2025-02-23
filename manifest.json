@@ -1,22 +1,80 @@
 {
   "name": "Anime Play",
   "short_name": "Anime Play",
-  "description": "Anime Play is one of the best online anime streaming site where you can watch & download free Hindi, Tamil, Telugu Dubbed Anime",
+  "dir": "auto",
+  "lang": "en-US",
+  "description": "Anime Play is one of the best online anime streaming sites where you can watch & download free Hindi, Tamil, Telugu Dubbed Anime.",
   "start_url": "https://www.animeplay.icu/",
-  "background_color": "#000",
+  "background_color": "#000000",
   "theme_color": "#7b1fa2",
   "display": "standalone",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "natural",
   "scope": "https://www.animeplay.icu/",
+  "apple_status_bar_style": "black-translucent",
+  "prefer_related_applications": true,
+  "origin": "https://www.animeplay.icu",
+  "categories": ["entertainment", "video", "media", "streaming"],
   "icons": [
     {
       "src": "/favicon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable any"
     },
     {
       "src": "/favicon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable any"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/homepage-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/homepage2-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/homepage.png",
+      "sizes": "720x540",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/player-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/player.png",
+      "sizes": "720x540",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Anime",
+      "short_name": "Search",
+      "description": "Find your favorite anime",
+      "url": "https://www.animeplay.icu/search",
+      "icons": [{ "src": "/favicon-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "aniflix.in"
+    }
+  ],
+  "handle_links": "preferred"
 }
