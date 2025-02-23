@@ -2,7 +2,7 @@
   "name": "Anime Play",
   "short_name": "Anime Play",
   "description": "Anime Play is one of the best online anime streaming site where you can watch & download free Hindi, Tamil, Telugu Dubbed Anime",
-  "start_url": "/?utm_source=homescreen",
+  "start_url": "/",
   "background_color": "#000",
   "theme_color": "#7b1fa2",
   "display": "standalone",
