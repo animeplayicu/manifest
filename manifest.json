@@ -67,7 +67,7 @@
   "related_applications": [
     {
       "platform": "play",
-      "id": "aniflix.in"
+      "id": "https://aniflix.in/"
     }
   ],
   "handle_links": "preferred"
