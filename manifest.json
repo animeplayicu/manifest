@@ -31,14 +31,8 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/homepage-mobile.png",
-      "sizes": "540x720",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
-    {
-      "src": "/screenshots/homepage2-mobile.png",
-      "sizes": "540x720",
+      "src": "/screenshots/homepage-mobile-new.png",
+      "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow"
     },
@@ -49,8 +43,8 @@
       "form_factor": "wide"
     },
     {
-      "src": "/screenshots/player-mobile.png",
-      "sizes": "540x720",
+      "src": "/screenshots/player-mobile-new.png",
+      "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow"
     },
