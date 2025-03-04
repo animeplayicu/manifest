@@ -1,5 +1,5 @@
 export default async function verifyUser() {
-    const API_TOKEN = "YOUR_GPLINKS_API_TOKEN"; // Replace with your GPLinks token
+    const API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0"; // Replaced with your GPLinks token
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
@@ -120,4 +120,3 @@ export default async function verifyUser() {
         }
     }
 }
-
