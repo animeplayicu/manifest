@@ -59,36 +59,3 @@ export default async function verifyUser() {
         }
     }
 }
-
-// Add CSS for the verification popup
-const style = document.createElement("style");
-style.innerHTML = `
-    #verification-popup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #1e1e1e;
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-        text-align: center;
-        z-index: 1001;
-    }
-    .verify-btn {
-        background: red;
-        color: white;
-        padding: 10px 15px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    .verify-btn:hover {
-        background: darkred;
-    }
-`;
-document.head.appendChild(style);
-
-// Let me know if you’d like me to refine anything else! 🚀
