@@ -30,7 +30,7 @@ export default async function verifyUser() {
     localStorage.setItem("userToken", newToken);
 
     // Generate the verification URL
-    const verificationURL = `${BASE_URL}&verify=${newToken}`;
+    const verificationURL = `${BASE_URL}?verify=${newToken}`;
 
     // Create verification popup
     const popup = document.createElement("div");
