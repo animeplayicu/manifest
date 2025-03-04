@@ -25,6 +25,7 @@ export default async function verifyUser() {
 
     const newToken = storedToken || generateToken();
     localStorage.setItem("userToken", newToken);
+
     const verificationURL = `${BASE_URL}?verify=${newToken}`;
 
     const popup = document.createElement("div");
@@ -42,49 +43,21 @@ export default async function verifyUser() {
     document.body.appendChild(popup);
 
     const style = document.createElement("style");
-    style.innerHTML = `/* Your existing CSS styles here */`;
+    style.innerHTML = `
+        .popup-contentt { padding: 10px; background-color: #000; border-radius: 10px; }
+        #verification-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    `;
     document.head.appendChild(style);
-
-    const overlay = document.createElement("div");
-    overlay.id = "verification-overlay";
-    document.body.appendChild(overlay);
 
     document.getElementById("verify-btn").addEventListener("click", async function () {
         const shortURL = await getShortenedURL(verificationURL);
         window.location.href = shortURL;
     });
 
-    document.getElementById("redeem-btn").addEventListener("click", async function () {
-        const redeemCode = document.getElementById("redeem-input").value;
-        const redeemBtn = document.getElementById("redeem-btn");
-        const spinner = document.createElement("div");
-        spinner.classList.add("spinner");
-        redeemBtn.innerHTML = "";
-        redeemBtn.appendChild(spinner);
-
-        if (redeemCode) {
-            const isValid = await validateRedeemCode(redeemCode);
-            if (isValid) {
-                localStorage.setItem("verifiedUntil", currentTime + 24 * 60 * 60 * 1000);
-                alert("✅ Redeem successful! You are now verified for 24 hours.");
-                window.location.href = BASE_URL;
-                await deleteRedeemCode();
-            } else {
-                alert("❌ Invalid redeem code.");
-            }
-        } else {
-            alert("❌ Please enter a redeem code.");
-        }
-
-        redeemBtn.innerHTML = "Redeem";
-    });
-
     async function getShortenedURL(longURL) {
         try {
-            const alias = generateToken();
-            const response = await fetch(`https://api.gplinks.com/api?api=${API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${alias}`);
+            const response = await fetch(`https://api.gplinks.com/api?api=${API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
             const data = await response.json();
-            
             if (data.status === "success" && data.shortenedUrl) {
                 return data.shortenedUrl;
             } else {
@@ -95,23 +68,6 @@ export default async function verifyUser() {
             console.error("Error fetching GPLinks short link:", error);
             return longURL;
         }
-    }
-
-    async function validateRedeemCode(code) {
-        try {
-            const response = await fetch("https://aniflix-redeem.vercel.app/api/redeem", { method: "GET" });
-            const data = await response.json();
-            return data.redeemCode && data.redeemCode === code;
-        } catch (error) {
-            console.error("Error validating redeem code:", error);
-        }
-        return false;
-    }
-
-    async function deleteRedeemCode() {
-        try {
-            await fetch("https://aniflix-redeem.vercel.app/api/redeem", { method: "POST" });
-        } catch (error) {}
     }
 
     function generateToken() {
