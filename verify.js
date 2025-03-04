@@ -1,5 +1,5 @@
 export default async function verifyUser() {
-    const API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0"; // Replaced with your GPLinks token
+    const API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0"; 
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
@@ -25,7 +25,6 @@ export default async function verifyUser() {
 
     const newToken = storedToken || generateToken();
     localStorage.setItem("userToken", newToken);
-
     const verificationURL = `${BASE_URL}?verify=${newToken}`;
 
     const popup = document.createElement("div");
@@ -42,6 +41,10 @@ export default async function verifyUser() {
     `;
     document.body.appendChild(popup);
 
+    const style = document.createElement("style");
+    style.innerHTML = `/* Your existing CSS styles here */`;
+    document.head.appendChild(style);
+
     const overlay = document.createElement("div");
     overlay.id = "verification-overlay";
     document.body.appendChild(overlay);
@@ -54,7 +57,6 @@ export default async function verifyUser() {
     document.getElementById("redeem-btn").addEventListener("click", async function () {
         const redeemCode = document.getElementById("redeem-input").value;
         const redeemBtn = document.getElementById("redeem-btn");
-
         const spinner = document.createElement("div");
         spinner.classList.add("spinner");
         redeemBtn.innerHTML = "";
@@ -73,8 +75,27 @@ export default async function verifyUser() {
         } else {
             alert("❌ Please enter a redeem code.");
         }
+
         redeemBtn.innerHTML = "Redeem";
     });
+
+    async function getShortenedURL(longURL) {
+        try {
+            const alias = generateToken();
+            const response = await fetch(`https://api.gplinks.com/api?api=${API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${alias}`);
+            const data = await response.json();
+            
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("GPLinks API error:", data);
+                return longURL;
+            }
+        } catch (error) {
+            console.error("Error fetching GPLinks short link:", error);
+            return longURL;
+        }
+    }
 
     async function validateRedeemCode(code) {
         try {
@@ -95,22 +116,6 @@ export default async function verifyUser() {
 
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
-    }
-
-    async function getShortenedURL(longURL) {
-        try {
-            const response = await fetch(`https://api.gplinks.com/api?api=${API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("GPLinks API error:", data);
-                return longURL;
-            }
-        } catch (error) {
-            console.error("Error fetching GPLinks short link:", error);
-            return longURL;
-        }
     }
 
     function showVerifiedMessage(expirationTime) {
