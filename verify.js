@@ -25,29 +25,7 @@ export default async function verifyUser() {
 
     const newToken = storedToken || generateToken();
     localStorage.setItem("userToken", newToken);
-
     const verificationURL = `${BASE_URL}?verify=${newToken}`;
-
-    const popup = document.createElement("div");
-    popup.id = "verification-popup";
-    popup.innerHTML = `
-        <div class="popup-contentt">
-            <h2>🔐 Verification Required</h2>
-            <p>To continue, please complete a quick verification. This is to keep our website free forever</p>
-            <a id="verify-btn" class="verify-btn">✅ Verify Now</a>
-            <h3>Or Enter Redeem Code</h3>
-            <input type="text" id="redeem-input" class="redeem-input" placeholder="Enter redeem code" />
-            <button id="redeem-btn" class="redeem-btn">Redeem</button>
-        </div>
-    `;
-    document.body.appendChild(popup);
-
-    const style = document.createElement("style");
-    style.innerHTML = `
-        .popup-contentt { padding: 10px; background-color: #000; border-radius: 10px; }
-        #verification-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-    `;
-    document.head.appendChild(style);
 
     document.getElementById("verify-btn").addEventListener("click", async function () {
         const shortURL = await getShortenedURL(verificationURL);
@@ -62,7 +40,7 @@ export default async function verifyUser() {
                 return data.shortenedUrl;
             } else {
                 console.error("GPLinks API error:", data);
-                return longURL;
+                return longURL; 
             }
         } catch (error) {
             console.error("Error fetching GPLinks short link:", error);
@@ -81,3 +59,36 @@ export default async function verifyUser() {
         }
     }
 }
+
+// Add CSS for the verification popup
+const style = document.createElement("style");
+style.innerHTML = `
+    #verification-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #1e1e1e;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        z-index: 1001;
+    }
+    .verify-btn {
+        background: red;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .verify-btn:hover {
+        background: darkred;
+    }
+`;
+document.head.appendChild(style);
+
+// Let me know if you’d like me to refine anything else! 🚀
