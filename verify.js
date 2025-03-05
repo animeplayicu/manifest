@@ -96,7 +96,7 @@ export default async function verifyUser() {
 
         .redeem-input:focus {
             background: #444;
-            border-color: #7b1fa2;
+            border-color: #ff4b5c;
         }
 
         .spinner {
@@ -129,7 +129,7 @@ export default async function verifyUser() {
 
         .redeem-input:focus {
             background: #444;
-            border-color: #7b1fa2;
+            border-color: #ff4b5c;
         }
         #verification-overlay {
             position: fixed;
