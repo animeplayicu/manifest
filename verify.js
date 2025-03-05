@@ -34,6 +34,7 @@ export default async function verifyUser() {
         <div class="popup-contentt">
             <h2>🔐 Verification Required</h2>
             <p>To continue, please complete a quick verification. This is to keep our website free forever</p>
+            <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn" class="verify-btn">✅ Verify Now</a>
             <h3>Or Enter Redeem Code</h3>
             <input type="text" id="redeem-input" class="redeem-input" placeholder="Enter redeem code" />
