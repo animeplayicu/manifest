@@ -67,7 +67,7 @@ export default async function verifyUser() {
             min-width: 300px;
         }
         .verify-btn {
-            background: #7b1fa2; /* Updated color */
+            background: red;
             color: white;
             padding: 10px 15px;
             border-radius: 5px;
