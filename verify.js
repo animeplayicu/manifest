@@ -36,9 +36,6 @@ export default async function verifyUser() {
             <p>To continue, please complete a quick verification. This is to keep our website free forever</p>
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn" class="verify-btn">✅ Verify Now</a>
-            <h3>Or Enter Redeem Code</h3>
-            <input type="text" id="redeem-input" class="redeem-input" placeholder="Enter redeem code" />
-            <button id="redeem-btn" class="redeem-btn">Redeem</button>
         </div>
     `;
     document.body.appendChild(popup);
@@ -68,8 +65,8 @@ export default async function verifyUser() {
             z-index: 1001;
             min-width: 300px;
         }
-        .verify-btn, #redeem-btn {
-            background: red;
+        .verify-btn {
+            background: #7b1fa2;
             color: white;
             padding: 10px 15px;
             border-radius: 5px;
@@ -78,25 +75,6 @@ export default async function verifyUser() {
             display: inline-block;
             margin-top: 10px;
             cursor: pointer;
-        }
-
-        .redeem-input {
-            width: 80%;
-            padding: 12px 18px;
-            margin: 15px 0;
-            font-size: 16px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            background: #333;
-            color: #fff;
-            text-align: center;
-            outline: none;
-            transition: background 0.3s ease;
-        }
-
-        .redeem-input:focus {
-            background: #444;
-            border-color: #ff4b5c;
         }
 
         .spinner {
@@ -113,24 +91,6 @@ export default async function verifyUser() {
             100% { transform: rotate(360deg); }
         }
 
-        .redeem-input {
-            width: 80%;
-            padding: 12px 18px;
-            margin: 15px 0;
-            font-size: 16px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            background: #333;
-            color: #fff;
-            text-align: center;
-            outline: none;
-            transition: background 0.3s ease;
-        }
-
-        .redeem-input:focus {
-            background: #444;
-            border-color: #ff4b5c;
-        }
         #verification-overlay {
             position: fixed;
             top: 0;
@@ -155,58 +115,6 @@ export default async function verifyUser() {
         window.location.href = shortURL; // Redirect via Cuty.io
     });
 
-    // Handle redeem button click
-    document.getElementById("redeem-btn").addEventListener("click", async function () {
-        const redeemCode = document.getElementById("redeem-input").value;
-        const redeemBtn = document.getElementById("redeem-btn");
-
-        // Show loading spinner
-        const spinner = document.createElement("div");
-        spinner.classList.add("spinner");
-        redeemBtn.innerHTML = "";
-        redeemBtn.appendChild(spinner);
-
-        if (redeemCode) {
-            const isValid = await validateRedeemCode(redeemCode);
-            if (isValid) {
-                localStorage.setItem("verifiedUntil", currentTime + 24 * 60 * 60 * 1000); // Store for 24 hrs
-                alert("✅ Redeem successful! You are now verified for 24 hours.");
-                window.location.href = BASE_URL; // Redirect to base URL
-                await deleteRedeemCode(); // Delete the redeem code
-            } else {
-                alert("❌ Invalid redeem code.");
-            }
-        } else {
-            alert("❌ Please enter a redeem code.");
-        }
-
-        // Remove spinner and restore button text
-        redeemBtn.innerHTML = "Redeem";
-    });
-
-    // Validate redeem code with API
-    async function validateRedeemCode(code) {
-        try {
-            const response = await fetch("https://aniflix-redeem.vercel.app/api/redeem", {
-                method: "GET",
-            });
-            const data = await response.json();
-            if (data.redeemCode && data.redeemCode === code) {
-                return true;
-            }
-        } catch (error) {
-            console.error("Error validating redeem code:", error);
-        }
-        return false;
-    }    
-
-    async function deleteRedeemCode() {
-        try {
-            await fetch("https://aniflix-redeem.vercel.app/api/redeem", { method: "POST" });
-        } catch (error) {}
-    }
-    
-
     // Generate a random 10-character alphanumeric token
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
@@ -227,7 +135,6 @@ export default async function verifyUser() {
             return longURL;
         }
     }
-
 
     // Show verified message
     function showVerifiedMessage(expirationTime) {
