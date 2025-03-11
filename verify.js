@@ -175,7 +175,7 @@ export default async function verifyUser() {
             if (data.status === "success" && data.shortenedUrl) {
                 return data.shortenedUrl;
             } else {
-                console.error("Cuty.io API error:", data);
+                console.error("Cuty.io API error:", data.message);
                 return longURL; 
             }
         } catch (error) {
