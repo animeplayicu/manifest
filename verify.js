@@ -1,6 +1,4 @@
 export default async function verifyUser() {
-    const ANYLINKS_API_TOKEN = "4556351df4a3e69c9838eb13860fb5967cc26595";
-    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
     const CUTY_API_TOKEN = "4e59936e77170037ff76e1d563400e2dcbd98dc2";
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
@@ -37,9 +35,7 @@ export default async function verifyUser() {
             <h2>🔐 Verification Required</h2>
             <p>To continue, please complete a quick verification. This is to keep our website free forever</p>
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
-            <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
-            <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
-            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
+            <a id="verify-btn" class="verify-btn">✅ Verify Now</a>
         </div>
     `;
     document.body.appendChild(popup);
@@ -113,20 +109,8 @@ export default async function verifyUser() {
     overlay.id = "verification-overlay";
     document.body.appendChild(overlay);
 
-    // Handle verification button click for AnyLinks API
-    document.getElementById("verify-btn1").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithAnyLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via AnyLinks
-    });
-
-    // Handle verification button click for GPLinks API
-    document.getElementById("verify-btn2").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via GPLinks
-    });
-
     // Handle verification button click for Cuty.io API
-    document.getElementById("verify-btn3").addEventListener("click", async function () {
+    document.getElementById("verify-btn").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithCuty(verificationURL);
         window.location.href = shortURL; // Redirect via Cuty.io
     });
@@ -134,38 +118,6 @@ export default async function verifyUser() {
     // Generate a random 10-character alphanumeric token
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
-    }
-
-    async function getShortenedURLWithAnyLinks(longURL) {
-        try {
-            const response = await fetch(`https://anylinks.in/api?api=${ANYLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("AnyLinks API error:", data);
-                return longURL; 
-            }
-        } catch (error) {
-            console.error("Error fetching AnyLinks short link:", error);
-            return longURL;
-        }
-    }
-
-    async function getShortenedURLWithGPLinks(longURL) {
-        try {
-            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("GPLinks API error:", data);
-                return longURL; 
-            }
-        } catch (error) {
-            console.error("Error fetching GPLinks short link:", error);
-            return longURL;
-        }
     }
 
     async function getShortenedURLWithCuty(longURL) {
