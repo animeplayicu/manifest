@@ -112,16 +112,16 @@ export default async function verifyUser() {
     overlay.id = "verification-overlay";
     document.body.appendChild(overlay);
 
-    // Handle verification button click for AnyLinks API
-    document.getElementById("verify-btn1").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithAnyLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via AnyLinks
-    });
-
     // Handle verification button click for GPLinks API
-    document.getElementById("verify-btn2").addEventListener("click", async function () {
+    document.getElementById("verify-btn1").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks(verificationURL);
         window.location.href = shortURL; // Redirect via GPLinks
+    });
+
+    // Handle verification button click for AnyLinks API
+    document.getElementById("verify-btn2").addEventListener("click", async function () {
+        const shortURL = await getShortenedURLWithAnyLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via AnyLinks
     });
 
     // Generate a random 10-character alphanumeric token
