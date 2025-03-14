@@ -35,7 +35,7 @@ export default async function verifyUser() {
         <div class="popup-contentt">
             <h2>🔐 Verification Required</h2>
             <p>To continue, please complete a quick verification. This is to keep our website free forever</p>
-            <p><a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank">How to verify</a></p>
+            <p><a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank"><b>How to verify</b></a></p>
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
             <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
