@@ -1,7 +1,14 @@
 export default async function verifyUser() {
-    const ANYLINKS_API_TOKEN = "4556351df4a3e69c9838eb13860fb5967cc26595";
-    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-    const BASE_URL = window.location.href.split("?verify=")[0]; 
+    const ANYLINKS_API_TOKEN = process.env.ANYLINKS_API_TOKEN;
+    const GPLINKS_API_TOKEN = process.env.GPLINKS_API_TOKEN;
+    const ADRINO_API_TOKEN = process.env.ADRINO_API_TOKEN;
+
+    if (!ANYLINKS_API_TOKEN || !GPLINKS_API_TOKEN || !ADRINO_API_TOKEN) {
+        console.error("API tokens are not defined. Please set the environment variables ANYLINKS_API_TOKEN, GPLINKS_API_TOKEN, and ADRINO_API_TOKEN.");
+        return;
+    }
+
+    const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
     const currentTime = Date.now();
@@ -9,7 +16,7 @@ export default async function verifyUser() {
     if (storedVerificationTime && currentTime < storedVerificationTime) {
         if (window.location.href.includes("&verify=")) {
             showVerifiedMessage(storedVerificationTime);
-            window.location.href = BASE_URL; 
+            window.location.href = BASE_URL;
         }
         return;
     }
@@ -39,6 +46,7 @@ export default async function verifyUser() {
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
             <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
+            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
         </div>
     `;
     document.body.appendChild(popup);
@@ -124,6 +132,12 @@ export default async function verifyUser() {
         window.location.href = shortURL; // Redirect via AnyLinks
     });
 
+    // Handle verification button click for AdRINo Links API
+    document.getElementById("verify-btn3").addEventListener("click", async function () {
+        const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via AdRINo Links
+    });
+
     // Generate a random 10-character alphanumeric token
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
@@ -157,6 +171,22 @@ export default async function verifyUser() {
             }
         } catch (error) {
             console.error("Error fetching GPLinks short link:", error);
+            return longURL;
+        }
+    }
+
+    async function getShortenedURLWithAdRINoLinks(longURL) {
+        try {
+            const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("AdRINo Links API error:", data);
+                return longURL;
+            }
+        } catch (error) {
+            console.error("Error fetching AdRINo Links short link:", error);
             return longURL;
         }
     }
