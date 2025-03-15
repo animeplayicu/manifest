@@ -1,6 +1,7 @@
 export default async function verifyUser() {
     const ANYLINKS_API_TOKEN = "4556351df4a3e69c9838eb13860fb5967cc26595";
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
+    const ADRINO_API_TOKEN = "9405b17f67ae378d5d10cba700fb9813e43c5a33";
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
@@ -39,6 +40,7 @@ export default async function verifyUser() {
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
             <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
+            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
         </div>
     `;
     document.body.appendChild(popup);
@@ -124,6 +126,12 @@ export default async function verifyUser() {
         window.location.href = shortURL; // Redirect via AnyLinks
     });
 
+    // Handle verification button click for AdRINo Links API
+    document.getElementById("verify-btn3").addEventListener("click", async function () {
+        const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via AdRINo Links
+    });
+
     // Generate a random 10-character alphanumeric token
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
@@ -157,6 +165,22 @@ export default async function verifyUser() {
             }
         } catch (error) {
             console.error("Error fetching GPLinks short link:", error);
+            return longURL;
+        }
+    }
+
+    async function getShortenedURLWithAdRINoLinks(longURL) {
+        try {
+            const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("AdRINo Links API error:", data);
+                return longURL; 
+            }
+        } catch (error) {
+            console.error("Error fetching AdRINo Links short link:", error);
             return longURL;
         }
     }
