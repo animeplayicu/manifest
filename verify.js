@@ -1,10 +1,8 @@
 export default async function verifyUser() {
-    const config = await fetchConfig();
-    console.log('Config:', config); // Debugging statement to check the config object
     const ANYLINKS_API_TOKEN = "4556351df4a3e69c9838eb13860fb5967cc26595";
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
     const ADRINO_API_TOKEN = "9405b17f67ae378d5d10cba700fb9813e43c5a33";
-    const BASE_URL = window.location.href.split("?verify=")[0];
+    const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
     const currentTime = Date.now();
@@ -12,7 +10,7 @@ export default async function verifyUser() {
     if (storedVerificationTime && currentTime < storedVerificationTime) {
         if (window.location.href.includes("&verify=")) {
             showVerifiedMessage(storedVerificationTime);
-            window.location.href = BASE_URL;
+            window.location.href = BASE_URL; 
         }
         return;
     }
@@ -35,14 +33,14 @@ export default async function verifyUser() {
     const popup = document.createElement("div");
     popup.id = "verification-popup";
     popup.innerHTML = `
-        <div class="popup-content">
+        <div class="popup-contentt">
             <h2>🔐 Verification Required</h2>
             <p>To continue, please complete a quick verification. This is to keep our website free forever</p>
             <p><a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank"><b>How to verify</b></a></p>
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
-            ${config.ANYLINKS === "y" ? '<a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>' : ''}
-            ${config.GPLINKS === "y" ? '<a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>' : ''}
-            ${config.ADRINO === "y" ? '<a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>' : ''}
+            <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
+            <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
+            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
         </div>
     `;
     document.body.appendChild(popup);
@@ -50,7 +48,7 @@ export default async function verifyUser() {
     // Add CSS dynamically
     const style = document.createElement("style");
     style.innerHTML = `
-        .popup-content {
+        .popup-contentt {
             padding: 10px;
             background-color: #000;
             border-radius: 10px;
@@ -116,29 +114,23 @@ export default async function verifyUser() {
     overlay.id = "verification-overlay";
     document.body.appendChild(overlay);
 
-    // Handle verification button click for AnyLinks API
-    if (config.ANYLINKS === "y") {
-        document.getElementById("verify-btn1").addEventListener("click", async function () {
-            const shortURL = await getShortenedURLWithAnyLinks(verificationURL);
-            window.location.href = shortURL; // Redirect via AnyLinks
-        });
-    }
-
     // Handle verification button click for GPLinks API
-    if (config.GPLINKS === "y") {
-        document.getElementById("verify-btn2").addEventListener("click", async function () {
-            const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-            window.location.href = shortURL; // Redirect via GPLinks
-        });
-    }
+    document.getElementById("verify-btn1").addEventListener("click", async function () {
+        const shortURL = await getShortenedURLWithGPLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via GPLinks
+    });
+
+    // Handle verification button click for AnyLinks API
+    document.getElementById("verify-btn2").addEventListener("click", async function () {
+        const shortURL = await getShortenedURLWithAnyLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via AnyLinks
+    });
 
     // Handle verification button click for AdRINo Links API
-    if (config.ADRINO === "y") {
-        document.getElementById("verify-btn3").addEventListener("click", async function () {
-            const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
-            window.location.href = shortURL; // Redirect via AdRINo Links
-        });
-    }
+    document.getElementById("verify-btn3").addEventListener("click", async function () {
+        const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via AdRINo Links
+    });
 
     // Generate a random 10-character alphanumeric token
     function generateToken() {
@@ -198,18 +190,6 @@ export default async function verifyUser() {
         if (window.location.href.includes("&verify=")) {
             const formattedTime = new Date(expirationTime).toLocaleString();
             alert(`✅ Now you are verified until ${formattedTime}. Thank you for supporting us!`);
-        }
-    }
-
-    async function fetchConfig() {
-        try {
-            const response = await fetch('https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.json');
-            const text = await response.text();
-            console.log('Config file content:', text); // Debugging statement to check the file content
-            return JSON.parse(text);
-        } catch (error) {
-            console.error('Failed to load config:', error);
-            return {};
         }
     }
 }
