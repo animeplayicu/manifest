@@ -1,8 +1,7 @@
 export default async function verifyUser() {
-    const ANYLINKS_API_TOKEN = "4556351df4a3e69c9838eb13860fb5967cc26595";
-    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-    const ADRINO_API_TOKEN = "9405b17f67ae378d5d10cba700fb9813e43c5a33";
-    const BASE_URL = window.location.href.split("?verify=")[0]; 
+    const config = await fetchConfig();
+    console.log('Config:', config); // Debugging statement to check the config object
+    const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
     const currentTime = Date.now();
@@ -10,7 +9,7 @@ export default async function verifyUser() {
     if (storedVerificationTime && currentTime < storedVerificationTime) {
         if (window.location.href.includes("&verify=")) {
             showVerifiedMessage(storedVerificationTime);
-            window.location.href = BASE_URL; 
+            window.location.href = BASE_URL;
         }
         return;
     }
@@ -33,14 +32,14 @@ export default async function verifyUser() {
     const popup = document.createElement("div");
     popup.id = "verification-popup";
     popup.innerHTML = `
-        <div class="popup-contentt">
+        <div class="popup-content">
             <h2>🔐 Verification Required</h2>
             <p>To continue, please complete a quick verification. This is to keep our website free forever</p>
             <p><a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank"><b>How to verify</b></a></p>
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
-            <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
-            <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
-            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
+            ${config.ANYLINKS === "y" ? '<a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>' : ''}
+            ${config.GPLINKS === "y" ? '<a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>' : ''}
+            ${config.ADRINO === "y" ? '<a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>' : ''}
         </div>
     `;
     document.body.appendChild(popup);
@@ -48,7 +47,7 @@ export default async function verifyUser() {
     // Add CSS dynamically
     const style = document.createElement("style");
     style.innerHTML = `
-        .popup-contentt {
+        .popup-content {
             padding: 10px;
             background-color: #000;
             border-radius: 10px;
@@ -114,75 +113,30 @@ export default async function verifyUser() {
     overlay.id = "verification-overlay";
     document.body.appendChild(overlay);
 
-    // Handle verification button click for GPLinks API
-    document.getElementById("verify-btn1").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via GPLinks
-    });
-
     // Handle verification button click for AnyLinks API
-    document.getElementById("verify-btn2").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithAnyLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via AnyLinks
-    });
+    if (config.ANYLINKS === "y") {
+        document.getElementById("verify-btn1").addEventListener("click", function () {
+            window.location.href = verificationURL; // Redirect via AnyLinks
+        });
+    }
+
+    // Handle verification button click for GPLinks API
+    if (config.GPLINKS === "y") {
+        document.getElementById("verify-btn2").addEventListener("click", function () {
+            window.location.href = verificationURL; // Redirect via GPLinks
+        });
+    }
 
     // Handle verification button click for AdRINo Links API
-    document.getElementById("verify-btn3").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via AdRINo Links
-    });
+    if (config.ADRINO === "y") {
+        document.getElementById("verify-btn3").addEventListener("click", function () {
+            window.location.href = verificationURL; // Redirect via AdRINo Links
+        });
+    }
 
     // Generate a random 10-character alphanumeric token
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
-    }
-
-    async function getShortenedURLWithAnyLinks(longURL) {
-        try {
-            const response = await fetch(`https://anylinks.in/api?api=${ANYLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("AnyLinks API error:", data);
-                return longURL; 
-            }
-        } catch (error) {
-            console.error("Error fetching AnyLinks short link:", error);
-            return longURL;
-        }
-    }
-
-    async function getShortenedURLWithGPLinks(longURL) {
-        try {
-            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("GPLinks API error:", data);
-                return longURL; 
-            }
-        } catch (error) {
-            console.error("Error fetching GPLinks short link:", error);
-            return longURL;
-        }
-    }
-
-    async function getShortenedURLWithAdRINoLinks(longURL) {
-        try {
-            const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("AdRINo Links API error:", data);
-                return longURL; 
-            }
-        } catch (error) {
-            console.error("Error fetching AdRINo Links short link:", error);
-            return longURL;
-        }
     }
 
     // Show verified message
@@ -190,6 +144,18 @@ export default async function verifyUser() {
         if (window.location.href.includes("&verify=")) {
             const formattedTime = new Date(expirationTime).toLocaleString();
             alert(`✅ Now you are verified until ${formattedTime}. Thank you for supporting us!`);
+        }
+    }
+
+    async function fetchConfig() {
+        try {
+            const response = await fetch('https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.txt');
+            const text = await response.text();
+            console.log('Config file content:', text); // Debugging statement to check the file content
+            return JSON.parse(text);
+        } catch (error) {
+            console.error('Failed to load config:', error);
+            return {};
         }
     }
 }
