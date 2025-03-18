@@ -82,6 +82,10 @@ export default async function verifyUser() {
             cursor: pointer;
         }
 
+        .hidden {
+            display: none;
+        }
+
         .spinner {
             width: 20px;
             height: 20px;
@@ -113,6 +117,21 @@ export default async function verifyUser() {
     const overlay = document.createElement("div");
     overlay.id = "verification-overlay";
     document.body.appendChild(overlay);
+
+    // Fetch and apply config settings
+    let config;
+    try {
+        const response = await fetch("https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.txt");
+        config = await response.json();
+    } catch (error) {
+        console.error("Error fetching config:", error);
+        config = { ANYLINKS: "y", GPLINKS: "y", ADRINO: "y" }; // Default to all enabled if fetch fails
+    }
+
+    // Toggle button visibility based on config
+    if (config.ANYLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
+    if (config.GPLINKS === "n") document.getElementById("verify-btn2").classList.add("hidden");
+    if (config.ADRINO === "n") document.getElementById("verify-btn3").classList.add("hidden");
 
     // Handle verification button click for GPLinks API
     document.getElementById("verify-btn1").addEventListener("click", async function () {
