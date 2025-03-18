@@ -1,5 +1,5 @@
 {
-    "ANYLINKS": "y",
-    "GPLINKS": "n",
-    "ADRINO": "y"
+    ✅ Verify Now 1 "ANYLINKS": "y",
+    ✅ Verify Now 2 "GPLINKS": "n",
+    ✅ Verify Now 3 "ADRINO": "y"
 }
