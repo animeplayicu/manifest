@@ -1,6 +1,9 @@
 export default async function verifyUser() {
     const config = await fetchConfig();
     console.log('Config:', config); // Debugging statement to check the config object
+    const ANYLINKS_API_TOKEN = "4556351df4a3e69c9838eb13860fb5967cc26595";
+    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
+    const ADRINO_API_TOKEN = "9405b17f67ae378d5d10cba700fb9813e43c5a33";
     const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
@@ -115,28 +118,79 @@ export default async function verifyUser() {
 
     // Handle verification button click for AnyLinks API
     if (config.ANYLINKS === "y") {
-        document.getElementById("verify-btn1").addEventListener("click", function () {
-            window.location.href = verificationURL; // Redirect via AnyLinks
+        document.getElementById("verify-btn1").addEventListener("click", async function () {
+            const shortURL = await getShortenedURLWithAnyLinks(verificationURL);
+            window.location.href = shortURL; // Redirect via AnyLinks
         });
     }
 
     // Handle verification button click for GPLinks API
     if (config.GPLINKS === "y") {
-        document.getElementById("verify-btn2").addEventListener("click", function () {
-            window.location.href = verificationURL; // Redirect via GPLinks
+        document.getElementById("verify-btn2").addEventListener("click", async function () {
+            const shortURL = await getShortenedURLWithGPLinks(verificationURL);
+            window.location.href = shortURL; // Redirect via GPLinks
         });
     }
 
     // Handle verification button click for AdRINo Links API
     if (config.ADRINO === "y") {
-        document.getElementById("verify-btn3").addEventListener("click", function () {
-            window.location.href = verificationURL; // Redirect via AdRINo Links
+        document.getElementById("verify-btn3").addEventListener("click", async function () {
+            const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
+            window.location.href = shortURL; // Redirect via AdRINo Links
         });
     }
 
     // Generate a random 10-character alphanumeric token
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
+    }
+
+    async function getShortenedURLWithAnyLinks(longURL) {
+        try {
+            const response = await fetch(`https://anylinks.in/api?api=${ANYLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("AnyLinks API error:", data);
+                return longURL; 
+            }
+        } catch (error) {
+            console.error("Error fetching AnyLinks short link:", error);
+            return longURL;
+        }
+    }
+
+    async function getShortenedURLWithGPLinks(longURL) {
+        try {
+            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("GPLinks API error:", data);
+                return longURL; 
+            }
+        } catch (error) {
+            console.error("Error fetching GPLinks short link:", error);
+            return longURL;
+        }
+    }
+
+    async function getShortenedURLWithAdRINoLinks(longURL) {
+        try {
+            const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("AdRINo Links API error:", data);
+                return longURL; 
+            }
+        } catch (error) {
+            console.error("Error fetching AdRINo Links short link:", error);
+            return longURL;
+        }
     }
 
     // Show verified message
@@ -149,7 +203,7 @@ export default async function verifyUser() {
 
     async function fetchConfig() {
         try {
-            const response = await fetch('https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.txt');
+            const response = await fetch('https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.json');
             const text = await response.text();
             console.log('Config file content:', text); // Debugging statement to check the file content
             return JSON.parse(text);
