@@ -40,8 +40,7 @@ export default async function verifyUser() {
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
             <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
-            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
-            <a id="verify-btn4" class="verify-btn">✅ Verify Now 4</a>
+            <a id="verify-btn4" class="verify-btn">✅ Verify Now 3</a>
         </div>
     `;
     document.body.appendChild(popup);
