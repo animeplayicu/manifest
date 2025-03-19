@@ -1,5 +1,5 @@
 {
      "ANYLINKS": "y",
-     "GPLINKS": "n",
-     "ADRINO": "n"
+     "GPLINKS": "y",
+     "ADRINO": "y"
 }
