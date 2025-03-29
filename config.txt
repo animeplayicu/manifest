@@ -1,1 +1,1 @@
-{ GPLINKS: "y", ADRINO: "n", NANOLINKS: "n" }
+{ GPLINKS: "y", ADRINO: "y", NANOLINKS: "n" }
