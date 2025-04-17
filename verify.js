@@ -1,7 +1,7 @@
 export default async function verifyUser() {
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
     const ADRINO_API_TOKEN = "9405b17f67ae378d5d10cba700fb9813e43c5a33";
-    const NANOLINKS_API_TOKEN = "be6dcdf8a68318e53bb1056702c3cc117047bcc9";
+    const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
@@ -40,7 +40,7 @@ export default async function verifyUser() {
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
             <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
-            <a id="verify-btn4" class="verify-btn">✅ Verify Now 3</a>
+            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
         </div>
     `;
     document.body.appendChild(popup);
@@ -82,33 +82,14 @@ export default async function verifyUser() {
             cursor: pointer;
         }
 
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
         .hidden {
             display: none;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid transparent;
-            border-top: 3px solid white;
-            border-radius: 50%;
-            animation: spin 0.45s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        #verification-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
         }
     `;
     document.head.appendChild(style);
@@ -125,30 +106,42 @@ export default async function verifyUser() {
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
-        config = { GPLINKS: "y", ADRINO: "y", NANOLINKS: "y" }; // Default to all enabled if fetch fails
+        config = { GPLINKS: "y", ADRINO: "y", LINKSHORTIFY: "y" }; // Default to all enabled if fetch fails
     }
 
     // Toggle button visibility based on config
     if (config.GPLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
     if (config.ADRINO === "n") document.getElementById("verify-btn2").classList.add("hidden");
-    if (config.NANOLINKS === "n") document.getElementById("verify-btn4").classList.add("hidden");
+    if (config.LINKSHORTIFY === "n") document.getElementById("verify-btn3").classList.add("hidden");
 
     // Handle verification button click for GPLinks API
     document.getElementById("verify-btn1").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via GPLinks
+        try {
+            const shortURL = await getShortenedURLWithGPLinks(verificationURL);
+            window.location.href = shortURL; // Redirect via GPLinks
+        } catch (error) {
+            showErrorMessage("Oops! Looks like the verification server isn't working right now. Try using a different verification button.");
+        }
     });
 
     // Handle verification button click for AdRINo Links API
     document.getElementById("verify-btn2").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via AdRINo Links
+        try {
+            const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
+            window.location.href = shortURL; // Redirect via AdRINo Links
+        } catch (error) {
+            showErrorMessage("Oops! Looks like the verification server isn't working right now. Try using a different verification button.");
+        }
     });
 
-    // Handle verification button click for NanoLinks API
-    document.getElementById("verify-btn4").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithNanoLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via NanoLinks
+    // Handle verification button click for LinkShortify API
+    document.getElementById("verify-btn3").addEventListener("click", async function () {
+        try {
+            const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
+            window.location.href = shortURL; // Redirect via LinkShortify
+        } catch (error) {
+            showErrorMessage("Oops! Looks like the verification server isn't working right now. Try using a different verification button.");
+        }
     });
 
     // Generate a random 10-character alphanumeric token
@@ -157,51 +150,41 @@ export default async function verifyUser() {
     }
 
     async function getShortenedURLWithGPLinks(longURL) {
-        try {
-            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("GPLinks API error:", data);
-                return longURL; 
-            }
-        } catch (error) {
-            console.error("Error fetching GPLinks short link:", error);
-            return longURL;
+        const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+        const data = await response.json();
+        if (data.status === "success" && data.shortenedUrl) {
+            return data.shortenedUrl;
+        } else {
+            throw new Error("GPLinks API error");
         }
     }
 
     async function getShortenedURLWithAdRINoLinks(longURL) {
-        try {
-            const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("AdRINo Links API error:", data);
-                return longURL; 
-            }
-        } catch (error) {
-            console.error("Error fetching AdRINo Links short link:", error);
-            return longURL;
+        const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+        const data = await response.json();
+        if (data.status === "success" && data.shortenedUrl) {
+            return data.shortenedUrl;
+        } else {
+            throw new Error("AdRINo Links API error");
         }
     }
 
-    async function getShortenedURLWithNanoLinks(longURL) {
-        try {
-            const response = await fetch(`https://nanolinks.in/api?api=${NANOLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                console.error("NanoLinks API error:", data);
-                return longURL; 
-            }
-        } catch (error) {
-            console.error("Error fetching NanoLinks short link:", error);
-            return longURL;
+    async function getShortenedURLWithLinkShortify(longURL) {
+        const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+        const data = await response.json();
+        if (data.status === "success" && data.shortenedUrl) {
+            return data.shortenedUrl;
+        } else {
+            throw new Error("LinkShortify API error");
         }
+    }
+
+    // Show error message
+    function showErrorMessage(message) {
+        const errorMessage = document.createElement("p");
+        errorMessage.className = "error-message";
+        errorMessage.textContent = message;
+        document.querySelector("#verification-popup").appendChild(errorMessage);
     }
 
     // Show verified message
