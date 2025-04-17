@@ -82,12 +82,6 @@ export default async function verifyUser() {
             cursor: pointer;
         }
 
-        .error-message {
-            color: red;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
         .hidden {
             display: none;
         }
@@ -116,32 +110,20 @@ export default async function verifyUser() {
 
     // Handle verification button click for GPLinks API
     document.getElementById("verify-btn1").addEventListener("click", async function () {
-        try {
-            const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-            window.location.href = shortURL; // Redirect via GPLinks
-        } catch (error) {
-            showErrorMessage("Oops! Looks like the verification server isn't working right now. Try using a different verification button.");
-        }
+        const shortURL = await getShortenedURLWithGPLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via GPLinks
     });
 
     // Handle verification button click for AdRINo Links API
     document.getElementById("verify-btn2").addEventListener("click", async function () {
-        try {
-            const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
-            window.location.href = shortURL; // Redirect via AdRINo Links
-        } catch (error) {
-            showErrorMessage("Oops! Looks like the verification server isn't working right now. Try using a different verification button.");
-        }
+        const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via AdRINo Links
     });
 
     // Handle verification button click for LinkShortify API
     document.getElementById("verify-btn3").addEventListener("click", async function () {
-        try {
-            const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
-            window.location.href = shortURL; // Redirect via LinkShortify
-        } catch (error) {
-            showErrorMessage("Oops! Looks like the verification server isn't working right now. Try using a different verification button.");
-        }
+        const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
+        window.location.href = shortURL; // Redirect via LinkShortify
     });
 
     // Generate a random 10-character alphanumeric token
@@ -150,41 +132,51 @@ export default async function verifyUser() {
     }
 
     async function getShortenedURLWithGPLinks(longURL) {
-        const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-        const data = await response.json();
-        if (data.status === "success" && data.shortenedUrl) {
-            return data.shortenedUrl;
-        } else {
-            throw new Error("GPLinks API error");
+        try {
+            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("GPLinks API error:", data);
+                return longURL; 
+            }
+        } catch (error) {
+            console.error("Error fetching GPLinks short link:", error);
+            return longURL;
         }
     }
 
     async function getShortenedURLWithAdRINoLinks(longURL) {
-        const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-        const data = await response.json();
-        if (data.status === "success" && data.shortenedUrl) {
-            return data.shortenedUrl;
-        } else {
-            throw new Error("AdRINo Links API error");
+        try {
+            const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("AdRINo Links API error:", data);
+                return longURL; 
+            }
+        } catch (error) {
+            console.error("Error fetching AdRINo Links short link:", error);
+            return longURL;
         }
     }
 
     async function getShortenedURLWithLinkShortify(longURL) {
-        const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-        const data = await response.json();
-        if (data.status === "success" && data.shortenedUrl) {
-            return data.shortenedUrl;
-        } else {
-            throw new Error("LinkShortify API error");
+        try {
+            const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                console.error("LinkShortify API error:", data);
+                return longURL; 
+            }
+        } catch (error) {
+            console.error("Error fetching LinkShortify short link:", error);
+            return longURL;
         }
-    }
-
-    // Show error message
-    function showErrorMessage(message) {
-        const errorMessage = document.createElement("p");
-        errorMessage.className = "error-message";
-        errorMessage.textContent = message;
-        document.querySelector("#verification-popup").appendChild(errorMessage);
     }
 
     // Show verified message
