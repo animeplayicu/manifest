@@ -1,7 +1,7 @@
 export default async function verifyUser() {
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
     const ADRINO_API_TOKEN = "9405b17f67ae378d5d10cba700fb9813e43c5a33";
-    const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
+    const NANOLINKS_API_TOKEN = "be6dcdf8a68318e53bb1056702c3cc117047bcc9";
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
@@ -40,7 +40,7 @@ export default async function verifyUser() {
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
             <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
-            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
+            <a id="verify-btn4" class="verify-btn">✅ Verify Now 3</a>
         </div>
     `;
     document.body.appendChild(popup);
@@ -85,6 +85,31 @@ export default async function verifyUser() {
         .hidden {
             display: none;
         }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid transparent;
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 0.45s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #verification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
     `;
     document.head.appendChild(style);
 
@@ -100,13 +125,13 @@ export default async function verifyUser() {
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
-        config = { GPLINKS: "y", ADRINO: "y", LINKSHORTIFY: "y" }; // Default to all enabled if fetch fails
+        config = { GPLINKS: "y", ADRINO: "y", NANOLINKS: "y" }; // Default to all enabled if fetch fails
     }
 
     // Toggle button visibility based on config
     if (config.GPLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
     if (config.ADRINO === "n") document.getElementById("verify-btn2").classList.add("hidden");
-    if (config.LINKSHORTIFY === "n") document.getElementById("verify-btn3").classList.add("hidden");
+    if (config.NANOLINKS === "n") document.getElementById("verify-btn4").classList.add("hidden");
 
     // Handle verification button click for GPLinks API
     document.getElementById("verify-btn1").addEventListener("click", async function () {
@@ -120,10 +145,10 @@ export default async function verifyUser() {
         window.location.href = shortURL; // Redirect via AdRINo Links
     });
 
-    // Handle verification button click for LinkShortify API
-    document.getElementById("verify-btn3").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
-        window.location.href = shortURL; // Redirect via LinkShortify
+    // Handle verification button click for NanoLinks API
+    document.getElementById("verify-btn4").addEventListener("click", async function () {
+        const shortURL = await getShortenedURLWithNanoLinks(verificationURL);
+        window.location.href = shortURL; // Redirect via NanoLinks
     });
 
     // Generate a random 10-character alphanumeric token
@@ -163,18 +188,18 @@ export default async function verifyUser() {
         }
     }
 
-    async function getShortenedURLWithLinkShortify(longURL) {
+    async function getShortenedURLWithNanoLinks(longURL) {
         try {
-            const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const response = await fetch(`https://nanolinks.in/api?api=${NANOLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
             const data = await response.json();
             if (data.status === "success" && data.shortenedUrl) {
                 return data.shortenedUrl;
             } else {
-                console.error("LinkShortify API error:", data);
+                console.error("NanoLinks API error:", data);
                 return longURL; 
             }
         } catch (error) {
-            console.error("Error fetching LinkShortify short link:", error);
+            console.error("Error fetching NanoLinks short link:", error);
             return longURL;
         }
     }
