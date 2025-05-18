@@ -1,6 +1,6 @@
 export default async function verifyUser() {
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-    const ADRINO_API_TOKEN = "9405b17f67ae378d5d10cba700fb9813e43c5a33";
+    const LINKCENTS_API_TOKEN = "9a68ac3dcd82104efd6fa3a85987c660015762fc";
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
@@ -125,12 +125,12 @@ export default async function verifyUser() {
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
-        config = { GPLINKS: "y", ADRINO: "y", LINKSHORTIFY: "y" }; // Default to all enabled if fetch fails
+        config = { GPLINKS: "y", LINKCENTS: "y", LINKSHORTIFY: "y" }; // Default to all enabled if fetch fails
     }
 
     // Toggle button visibility based on config
     if (config.GPLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
-    if (config.ADRINO === "n") document.getElementById("verify-btn2").classList.add("hidden");
+    if (config.LINKCENTS === "n") document.getElementById("verify-btn2").classList.add("hidden");
     if (config.LINKSHORTIFY === "n") document.getElementById("verify-btn3").classList.add("hidden");
 
     // Handle verification button click for GPLinks API
@@ -139,10 +139,10 @@ export default async function verifyUser() {
         window.location.href = shortURL; // Redirect via GPLinks
     });
 
-    // Handle verification button click for AdRINo Links API
+    // Handle verification button click for Linkcents API (NEW 2nd button)
     document.getElementById("verify-btn2").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithAdRINoLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via AdRINo Links
+        const shortURL = await getShortenedURLWithLinkcents(verificationURL);
+        window.location.href = shortURL; // Redirect via Linkcents
     });
 
     // Handle verification button click for LinkShortify API
@@ -172,18 +172,19 @@ export default async function verifyUser() {
         }
     }
 
-    async function getShortenedURLWithAdRINoLinks(longURL) {
+    // NEW: Linkcents API (2nd button)
+    async function getShortenedURLWithLinkcents(longURL) {
         try {
-            const response = await fetch(`https://adrinolinks.in/api?api=${ADRINO_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const response = await fetch(`https://linkcents.com/api?api=${LINKCENTS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
             const data = await response.json();
             if (data.status === "success" && data.shortenedUrl) {
                 return data.shortenedUrl;
             } else {
-                console.error("AdRINo Links API error:", data);
+                console.error("Linkcents API error:", data);
                 return longURL; 
             }
         } catch (error) {
-            console.error("Error fetching AdRINo Links short link:", error);
+            console.error("Error fetching Linkcents short link:", error);
             return longURL;
         }
     }
