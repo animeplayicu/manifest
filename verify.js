@@ -1,6 +1,6 @@
 export default async function verifyUser() {
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005";  
+    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005"; // Aapka asli token
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
@@ -126,7 +126,6 @@ export default async function verifyUser() {
     // Toggle button visibility based on config
     if (config.GPLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
     if (config.LINKSHORTIFY === "n") document.getElementById("verify-btn3").classList.add("hidden");
-    // Note: LINKCENTS ka check hata diya.
 
     // GPLinks 1
     document.getElementById("verify-btn1").addEventListener("click", async function () {
@@ -134,7 +133,7 @@ export default async function verifyUser() {
         window.location.href = shortURL; // Redirect via GPLinks
     });
 
-    // GPLinks 2 (Developers API)
+    // GPLinks 2 - Use text/plain endpoint for best reliability
     document.getElementById("verify-btn2").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
         window.location.href = shortURL; // Redirect via GPLinks2
@@ -167,19 +166,19 @@ export default async function verifyUser() {
         }
     }
 
-    // GPLinks2 Developers API
+    // GPLinks2 Developers API (Plain Text response)
     async function getShortenedURLWithGPLinks2(longURL) {
         try {
-            const response = await fetch(`https://gplinks.in/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
+            const response = await fetch(`https://gplinks.in/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}&format=text`);
+            const shortUrlText = await response.text();
+            if (shortUrlText && shortUrlText.startsWith("https://")) {
+                return shortUrlText;
             } else {
-                console.error("GPLinks2 API error:", data);
+                console.error("GPLinks2 Text API error:", shortUrlText);
                 return longURL; 
             }
         } catch (error) {
-            console.error("Error fetching GPLinks2 short link:", error);
+            console.error("Error fetching GPLinks2 short link (text):", error);
             return longURL;
         }
     }
