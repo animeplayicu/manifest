@@ -1,6 +1,5 @@
 export default async function verifyUser() {
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005";
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
@@ -70,8 +69,7 @@ export default async function verifyUser() {
             <p><a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank"><b>How to verify</b></a></p>
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
-            <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
-            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
+            <a id="verify-btn3" class="verify-btn">✅ Verify Now 2</a>
         </div>
     `;
     document.body.appendChild(popup);
@@ -139,7 +137,7 @@ export default async function verifyUser() {
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
-        config = { GPLINKS: "y", LINKCENTS: "y", LINKSHORTIFY: "y" };
+        config = { GPLINKS: "y", LINKSHORTIFY: "y" };
     }
 
     if (config.GPLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
@@ -148,11 +146,6 @@ export default async function verifyUser() {
     // --- BUTTON HANDLER ---
     document.getElementById("verify-btn1").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-        cleanupPopup();
-        window.location.href = shortURL;
-    });
-    document.getElementById("verify-btn2").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
         cleanupPopup();
         window.location.href = shortURL;
     });
@@ -184,22 +177,6 @@ export default async function verifyUser() {
             }
         } catch (error) {
             alert("Error fetching GPLinks 1 short link");
-            return longURL;
-        }
-    }
-
-    async function getShortenedURLWithGPLinks2(longURL) {
-        try {
-            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                alert(data.message || "GPLinks 2 Error");
-                return longURL;
-            }
-        } catch (error) {
-            alert("Error fetching GPLinks 2 short link");
             return longURL;
         }
     }
