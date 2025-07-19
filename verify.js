@@ -1,8 +1,8 @@
 export default async function verifyUser() {
-    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005"; // 
+    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0"; // button 1 token
+    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005"; // button 2 token (correct!)
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
-    const BASE_URL = window.location.href.split("?verify=")[0]; 
+    const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
     const currentTime = Date.now();
@@ -10,7 +10,7 @@ export default async function verifyUser() {
     if (storedVerificationTime && currentTime < storedVerificationTime) {
         if (window.location.href.includes("&verify=")) {
             showVerifiedMessage(storedVerificationTime);
-            window.location.href = BASE_URL; 
+            window.location.href = BASE_URL;
         }
         return;
     }
@@ -48,63 +48,13 @@ export default async function verifyUser() {
     // Add CSS dynamically
     const style = document.createElement("style");
     style.innerHTML = `
-        .popup-contentt {
-            padding: 10px;
-            background-color: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-        }
-        #verification-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #1e1e1e;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            z-index: 1001;
-            min-width: 300px;
-        }
-        .verify-btn {
-            background: #7b1fa2;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-        .hidden {
-            display: none;
-        }
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid transparent;
-            border-top: 3px solid white;
-            border-radius: 50%;
-            animation: spin 0.45s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        #verification-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-        }
+        .popup-contentt { padding: 10px; background-color: #000; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);}
+        #verification-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e1e1e; color: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); text-align: center; z-index: 1001; min-width: 300px;}
+        .verify-btn { background: #7b1fa2; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; cursor: pointer;}
+        .hidden {display: none;}
+        .spinner {width: 20px; height: 20px; border: 3px solid transparent; border-top: 3px solid white; border-radius: 50%; animation: spin 0.45s linear infinite;}
+        @keyframes spin {0% { transform: rotate(0deg);} 100% {transform: rotate(360deg);}}
+        #verification-overlay {position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); z-index: 1000;}
     `;
     document.head.appendChild(style);
 
@@ -120,7 +70,7 @@ export default async function verifyUser() {
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
-        config = { GPLINKS: "y", LINKCENTS: "y", LINKSHORTIFY: "y" }; // Default to all enabled if fetch fails
+        config = { GPLINKS: "y", LINKCENTS: "y", LINKSHORTIFY: "y" };
     }
 
     // Toggle button visibility based on config
@@ -130,19 +80,19 @@ export default async function verifyUser() {
     // GPLinks 1
     document.getElementById("verify-btn1").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-        window.location.href = shortURL; // Redirect via GPLinks
+        window.location.href = shortURL;
     });
 
-    // GPLinks 2 - Use text/plain endpoint for best reliability
+    // GPLinks 2 - Use correct endpoint and logic
     document.getElementById("verify-btn2").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
-        window.location.href = shortURL; // Redirect via GPLinks2
+        window.location.href = shortURL;
     });
 
     // LinkShortify
     document.getElementById("verify-btn3").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
-        window.location.href = shortURL; // Redirect via LinkShortify
+        window.location.href = shortURL;
     });
 
     // Generate a random 10-character alphanumeric token
@@ -150,6 +100,7 @@ export default async function verifyUser() {
         return Math.random().toString(36).substr(2, 10);
     }
 
+    // GPLinks 1 JSON API
     async function getShortenedURLWithGPLinks(longURL) {
         try {
             const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
@@ -157,32 +108,33 @@ export default async function verifyUser() {
             if (data.status === "success" && data.shortenedUrl) {
                 return data.shortenedUrl;
             } else {
-                console.error("GPLinks API error:", data);
-                return longURL; 
+                alert(data.message || "GPLinks 1 Error");
+                return longURL;
             }
         } catch (error) {
-            console.error("Error fetching GPLinks short link:", error);
+            alert("Error fetching GPLinks 1 short link");
             return longURL;
         }
     }
 
-    // GPLinks2 Developers API (Plain Text response)
+    // GPLinks 2 JSON API - Official Doc format (just like button 1!)
     async function getShortenedURLWithGPLinks2(longURL) {
         try {
-            const response = await fetch(`https://gplinks.in/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}&format=text`);
-            const shortUrlText = await response.text();
-            if (shortUrlText && shortUrlText.startsWith("https://")) {
-                return shortUrlText;
+            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
             } else {
-                console.error("GPLinks2 Text API error:", shortUrlText);
-                return longURL; 
+                alert(data.message || "GPLinks 2 Error");
+                return longURL;
             }
         } catch (error) {
-            console.error("Error fetching GPLinks2 short link (text):", error);
+            alert("Error fetching GPLinks 2 short link");
             return longURL;
         }
     }
 
+    // LinkShortify
     async function getShortenedURLWithLinkShortify(longURL) {
         try {
             const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
@@ -190,11 +142,11 @@ export default async function verifyUser() {
             if (data.status === "success" && data.shortenedUrl) {
                 return data.shortenedUrl;
             } else {
-                console.error("LinkShortify API error:", data);
-                return longURL; 
+                alert("LinkShortify API error");
+                return longURL;
             }
         } catch (error) {
-            console.error("Error fetching LinkShortify short link:", error);
+            alert("Error fetching LinkShortify short link");
             return longURL;
         }
     }
