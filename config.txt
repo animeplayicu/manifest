@@ -1,1 +1,1 @@
-{ GPLINKS: "y", GPLINKS2: "y", LINKSHORTIFY: "y" }
+{ GPLINKS: "y", GPLINKS2: "n", LINKSHORTIFY: "y" }
