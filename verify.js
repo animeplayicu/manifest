@@ -1,6 +1,6 @@
 export default async function verifyUser() {
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-    const GPLINKS2_API_TOKEN = "REPLACE_WITH_YOUR_GPLINKS2_TOKEN"; // <-- Yahan apna naya token laga lena
+    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005"; // <-- Yahan apna naya token laga lena
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
