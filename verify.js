@@ -1,6 +1,6 @@
 export default async function verifyUser() {
-    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0"; // button 1 token
-    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005"; // button 2 token (correct!)
+    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0"; // Button 1 ka token
+    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005"; // Button 2 ka token (aapka diya hua)
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
@@ -83,7 +83,7 @@ export default async function verifyUser() {
         window.location.href = shortURL;
     });
 
-    // GPLinks 2 - Use correct endpoint and logic
+    // GPLinks 2 (bilkul GPLinks 1 ki tarah = same endpoint, bas token alag)
     document.getElementById("verify-btn2").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
         window.location.href = shortURL;
@@ -100,7 +100,7 @@ export default async function verifyUser() {
         return Math.random().toString(36).substr(2, 10);
     }
 
-    // GPLinks 1 JSON API
+    // GPLinks 1 API (JSON response, original)
     async function getShortenedURLWithGPLinks(longURL) {
         try {
             const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
@@ -117,7 +117,7 @@ export default async function verifyUser() {
         }
     }
 
-    // GPLinks 2 JSON API - Official Doc format (just like button 1!)
+    // GPLinks 2 API (same logic as GPLinks 1, but using 2nd token)
     async function getShortenedURLWithGPLinks2(longURL) {
         try {
             const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
@@ -134,7 +134,7 @@ export default async function verifyUser() {
         }
     }
 
-    // LinkShortify
+    // LinkShortify API (unchanged)
     async function getShortenedURLWithLinkShortify(longURL) {
         try {
             const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
