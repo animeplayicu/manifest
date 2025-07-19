@@ -1,16 +1,43 @@
 export default async function verifyUser() {
-    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0"; // Button 1 ka token
-    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005"; // Button 2 ka token (aapka diya hua)
+    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
+    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005";
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
-    const BASE_URL = window.location.href.split("?verify=")[0];
+    const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
     const currentTime = Date.now();
 
+    // --- POPUP FLAG RESET (after expiry) ---
+    if (storedVerificationTime && Date.now() > storedVerificationTime) {
+        localStorage.removeItem("verifiedPopupShown");
+        localStorage.removeItem("oneHourLeftNotificationShown");
+    }
+    // ---------------------------------------
+
+    // 1h left notification -- ye hamesha page load pe check hoga:
+    (function checkOneHourLeftNotification() {
+        if (storedVerificationTime && localStorage.getItem("verifiedUntil")) {
+            const timeLeft = storedVerificationTime - Date.now();
+            const oneHour = 60 * 60 * 1000;
+            if (
+                timeLeft > 0 &&
+                timeLeft <= oneHour &&
+                localStorage.getItem("oneHourLeftNotificationShown") !== "yes"
+            ) {
+                showOneHourLeftNotification(storedVerificationTime);
+                localStorage.setItem("oneHourLeftNotificationShown", "yes");
+            }
+            if (timeLeft > oneHour) {
+                // Future proof: agar kabhi reset, old notification flag hata dein
+                localStorage.removeItem("oneHourLeftNotificationShown");
+            }
+        }
+    })();
+
     if (storedVerificationTime && currentTime < storedVerificationTime) {
         if (window.location.href.includes("&verify=")) {
             showVerifiedMessage(storedVerificationTime);
-            window.location.href = BASE_URL;
+            window.location.href = BASE_URL; 
         }
         return;
     }
@@ -51,10 +78,29 @@ export default async function verifyUser() {
         .popup-contentt { padding: 10px; background-color: #000; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);}
         #verification-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e1e1e; color: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); text-align: center; z-index: 1001; min-width: 300px;}
         .verify-btn { background: #7b1fa2; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 10px; cursor: pointer;}
-        .hidden {display: none;}
-        .spinner {width: 20px; height: 20px; border: 3px solid transparent; border-top: 3px solid white; border-radius: 50%; animation: spin 0.45s linear infinite;}
-        @keyframes spin {0% { transform: rotate(0deg);} 100% {transform: rotate(360deg);}}
-        #verification-overlay {position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); z-index: 1000;}
+        .hidden { display: none; }
+        #verify-success-banner, #verify-1h-warning {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 19999;
+            font-family: Inter, sans-serif;
+            letter-spacing: 0.5px;
+            font-size: 16px;
+            border-radius: 8px;
+            padding: 13px 28px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+        }
+        #verify-success-banner {
+            top: 14px;
+            background: #43a047;
+            color: white;
+        }
+        #verify-1h-warning {
+            top: 65px;
+            background: #ffecb3;
+            color: #b28704;
+        }
     `;
     document.head.appendChild(style);
 
@@ -83,7 +129,7 @@ export default async function verifyUser() {
         window.location.href = shortURL;
     });
 
-    // GPLinks 2 (bilkul GPLinks 1 ki tarah = same endpoint, bas token alag)
+    // GPLinks 2
     document.getElementById("verify-btn2").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
         window.location.href = shortURL;
@@ -95,12 +141,10 @@ export default async function verifyUser() {
         window.location.href = shortURL;
     });
 
-    // Generate a random 10-character alphanumeric token
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
     }
 
-    // GPLinks 1 API (JSON response, original)
     async function getShortenedURLWithGPLinks(longURL) {
         try {
             const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
@@ -117,7 +161,6 @@ export default async function verifyUser() {
         }
     }
 
-    // GPLinks 2 API (same logic as GPLinks 1, but using 2nd token)
     async function getShortenedURLWithGPLinks2(longURL) {
         try {
             const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
@@ -134,7 +177,6 @@ export default async function verifyUser() {
         }
     }
 
-    // LinkShortify API (unchanged)
     async function getShortenedURLWithLinkShortify(longURL) {
         try {
             const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
@@ -151,11 +193,27 @@ export default async function verifyUser() {
         }
     }
 
-    // Show verified message
+    // --- Verified Success Popup [ONE TIME, per verification] ---
     function showVerifiedMessage(expirationTime) {
-        if (window.location.href.includes("&verify=")) {
-            const formattedTime = new Date(expirationTime).toLocaleString();
-            alert(`✅ Now you are verified until ${formattedTime}. Thank you for supporting us!`);
-        }
+        if (localStorage.getItem("verifiedPopupShown") === "yes") return;
+        const formattedTime = new Date(expirationTime).toLocaleString();
+        const notice = document.createElement('div');
+        notice.id = 'verify-success-banner';
+        notice.textContent = `✅ You are verified for 24 hours! Valid till: ${formattedTime}`;
+        document.body.appendChild(notice);
+        setTimeout(() => notice.remove(), 7000);
+        localStorage.setItem("verifiedPopupShown", "yes");
+    }
+
+    // --- 1 Hour Left Notification [ONE TIME, per verification] ---
+    function showOneHourLeftNotification(expirationTime) {
+        if (localStorage.getItem("oneHourLeftNotificationShown") === "yes") return;
+        const formattedTime = new Date(expirationTime).toLocaleTimeString();
+        const notice = document.createElement('div');
+        notice.id = 'verify-1h-warning';
+        notice.textContent = `⚠️ Only 1 hour left! Verification expires at ${formattedTime}`;
+        document.body.appendChild(notice);
+        setTimeout(() => notice.remove(), 9000);
+        localStorage.setItem("oneHourLeftNotificationShown", "yes");
     }
 }
