@@ -1,20 +1,38 @@
 export default async function verifyUser() {
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
+    const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005";
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
     const currentTime = Date.now();
 
-    // --- Popup flag reset after expiry ---
     if (storedVerificationTime && Date.now() > storedVerificationTime) {
-        localStorage.removeItem("verifiedPopupShown");
+        localStorage.removeItem("oneHourLeftNotificationShown");
     }
-    // -------------------------------------
+
+    // 1 hour left warning (optional — aap chahein toh bana sakte hain)
+    (function checkOneHourLeftNotification() {
+        const verifiedUntil = localStorage.getItem("verifiedUntil");
+        if (verifiedUntil) {
+            const timeLeft = verifiedUntil - Date.now();
+            const oneHour = 60 * 60 * 1000;
+            if (
+                timeLeft > 0 &&
+                timeLeft <= oneHour &&
+                localStorage.getItem("oneHourLeftNotificationShown") !== "yes"
+            ) {
+                showOneHourLeftNotification(verifiedUntil);
+                localStorage.setItem("oneHourLeftNotificationShown", "yes");
+            }
+            if (timeLeft > oneHour) {
+                localStorage.removeItem("oneHourLeftNotificationShown");
+            }
+        }
+    })();
 
     if (storedVerificationTime && currentTime < storedVerificationTime) {
         if (window.location.href.includes("&verify=")) {
-            showVerifiedMessage(storedVerificationTime);
             window.location.href = BASE_URL;
         }
         return;
@@ -25,7 +43,6 @@ export default async function verifyUser() {
 
     if (userToken && userToken === storedToken) {
         localStorage.setItem("verifiedUntil", currentTime + 24 * 60 * 60 * 1000);
-        showVerifiedMessage(currentTime + 24 * 60 * 60 * 1000);
         window.location.href = BASE_URL;
         return;
     }
@@ -53,13 +70,10 @@ export default async function verifyUser() {
             blur.style.display = "block";
         }
     }
-    function removeBackgroundBlur() {
-        const blur = document.getElementById("verification-overlay");
-        if (blur) blur.style.display = "none";
-    }
+    // OG code: No need to manually clean overlay on button click
+    applyBackgroundBlur();
 
     // --- POPUP CREATION ---
-    applyBackgroundBlur();
     const popup = document.createElement("div");
     popup.id = "verification-popup";
     popup.innerHTML = `
@@ -69,12 +83,13 @@ export default async function verifyUser() {
             <p><a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank"><b>How to verify</b></a></p>
             <p>If AdBlocker detected then disable PrivateDNS in your device settings.</p>
             <a id="verify-btn1" class="verify-btn">✅ Verify Now 1</a>
-            <a id="verify-btn3" class="verify-btn">✅ Verify Now 2</a>
+            <a id="verify-btn2" class="verify-btn">✅ Verify Now 2</a>
+            <a id="verify-btn3" class="verify-btn">✅ Verify Now 3</a>
         </div>
     `;
     document.body.appendChild(popup);
 
-    // CSS INJECTION
+    // CSS INJECTION (OG style)
     const style = document.createElement("style");
     style.innerHTML = `
         .popup-contentt {
@@ -109,32 +124,30 @@ export default async function verifyUser() {
             margin-top: 10px;
             cursor: pointer;
         }
-        .hidden {
-            display: none;
-        }
-        #verify-success-banner {
+        .hidden {display: none;}
+        #verify-1h-warning {
             position:fixed;
-            top:18px;
-            left:50%;
-            transform:translateX(-50%);
-            background:#43a047;
-            color:white;
-            padding:14px 45px 14px 28px;
-            border-radius:9px;
-            z-index:19999;
-            box-shadow:0 4px 16px rgba(0,0,0,0.17);
-            font-size:17px;
-            font-family:Inter,sans-serif;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff4747;
+            color: #fff;
+            padding: 14px 45px 14px 28px;
+            border-radius: 9px;
+            z-index: 19999;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            font-size: 17px;
+            font-family: Inter,sans-serif;
             letter-spacing:0.5px;
             display:flex;
             align-items:center;
             min-width:260px;
             max-width:90vw;
         }
-        #verify-success-banner button {
+        #verify-1h-warning button {
             margin-left:auto;
             background:#fff;
-            color:#43a047;
+            color:#b32c2c;
             border:none;
             border-radius:6px;
             padding:7px 18px;
@@ -145,8 +158,8 @@ export default async function verifyUser() {
             margin-right:-8px;
             transition:background 0.2s;
         }
-        #verify-success-banner button:hover {
-            background:#e6ffe5;
+        #verify-1h-warning button:hover {
+            background:#fae7a7;
         }
         #verification-overlay {
             position: fixed;
@@ -164,7 +177,9 @@ export default async function verifyUser() {
     // Fetch and apply config settings
     let config;
     try {
-        const response = await fetch("https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.txt");
+        const response = await fetch(
+            "https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.txt"
+        );
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
@@ -174,23 +189,19 @@ export default async function verifyUser() {
     if (config.GPLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
     if (config.LINKSHORTIFY === "n") document.getElementById("verify-btn3").classList.add("hidden");
 
-    // --- BUTTON HANDLER ---
+    // == OG style: no cleanupPopup() here, only redirect ==
     document.getElementById("verify-btn1").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-        cleanupPopup();
+        window.location.href = shortURL;
+    });
+    document.getElementById("verify-btn2").addEventListener("click", async function () {
+        const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
         window.location.href = shortURL;
     });
     document.getElementById("verify-btn3").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
-        cleanupPopup();
         window.location.href = shortURL;
     });
-
-    function cleanupPopup() {
-        removeBackgroundBlur();
-        const pop = document.getElementById('verification-popup');
-        if(pop) pop.remove();
-    }
 
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
@@ -212,6 +223,22 @@ export default async function verifyUser() {
         }
     }
 
+    async function getShortenedURLWithGPLinks2(longURL) {
+        try {
+            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                alert(data.message || "GPLinks 2 Error");
+                return longURL;
+            }
+        } catch (error) {
+            alert("Error fetching GPLinks 2 short link");
+            return longURL;
+        }
+    }
+
     async function getShortenedURLWithLinkShortify(longURL) {
         try {
             const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
@@ -228,30 +255,27 @@ export default async function verifyUser() {
         }
     }
 
-    // === Verified Success Banner (ek hi baar, close+auto-hide) ===
-    function showVerifiedMessage(expirationTime) {
-        if (localStorage.getItem("verifiedPopupShown") === "yes") return;
-        const formattedTime = new Date(expirationTime).toLocaleString();
+    // --- 1 Hour Left Warning Banner (optional for your flow) ---
+    function showOneHourLeftNotification(expirationTime) {
+        if (localStorage.getItem("oneHourLeftNotificationShown") === "yes") return;
+        const formattedTime = new Date(Number(expirationTime)).toLocaleTimeString();
         const notice = document.createElement('div');
-        notice.id = 'verify-success-banner';
+        notice.id = 'verify-1h-warning';
         notice.innerHTML = `
-            ✅ You are verified for 24 hours.<br>
-            <span style="font-size:15px;opacity:0.82;">Valid till: ${formattedTime}</span>
-            <button id="verify-done-btn" style="
-                margin-left:auto;background:#fff;color:#43a047;border:none;
+            ⏰ Only 1 hour left! <b>Your verification will expire soon.</b><br>
+            <span style="font-size:15px;opacity:0.87;">Expires at: ${formattedTime}</span>
+            <button id="verify-1h-done-btn"
+                style="margin-left:auto;background:#fff;color:#b32c2c;border:none;
                 border-radius:6px;padding:7px 18px;cursor:pointer;
-                font-weight:600;font-size:15px;box-shadow:0 1px 3px rgba(45,90,50,0.07);margin-right:-8px;
-            ">Done</button>
+                font-weight:600;font-size:15px;box-shadow:0 1px 3px rgba(45,90,50,0.07);margin-right:-8px;">
+                OK
+            </button>
         `;
         document.body.appendChild(notice);
-        // User can close via Done button
-        document.getElementById('verify-done-btn').onclick = () => {
-            notice.remove();
-        };
-        // Auto-hide after 10 sec
+        document.getElementById('verify-1h-done-btn').onclick = () => notice.remove();
         setTimeout(() => {
             if (notice.parentNode) notice.remove();
-        }, 10000);
-        localStorage.setItem("verifiedPopupShown", "yes");
+        }, 12000);
+        localStorage.setItem("oneHourLeftNotificationShown", "yes");
     }
 }
