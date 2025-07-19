@@ -1,6 +1,6 @@
 export default async function verifyUser() {
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-    const LINKCENTS_API_TOKEN = "9a68ac3dcd82104efd6fa3a85987c660015762fc";
+    const GPLINKS2_API_TOKEN = "5e087dab7e867c1e1321d8cb48f0e634e97c1e39";  
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0]; 
     const storedToken = localStorage.getItem("userToken");
@@ -55,7 +55,6 @@ export default async function verifyUser() {
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
         }
-
         #verification-popup {
             position: fixed;
             top: 50%;
@@ -81,11 +80,9 @@ export default async function verifyUser() {
             margin-top: 10px;
             cursor: pointer;
         }
-
         .hidden {
             display: none;
         }
-
         .spinner {
             width: 20px;
             height: 20px;
@@ -94,12 +91,10 @@ export default async function verifyUser() {
             border-radius: 50%;
             animation: spin 0.45s linear infinite;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         #verification-overlay {
             position: fixed;
             top: 0;
@@ -130,22 +125,22 @@ export default async function verifyUser() {
 
     // Toggle button visibility based on config
     if (config.GPLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
-    if (config.LINKCENTS === "n") document.getElementById("verify-btn2").classList.add("hidden");
     if (config.LINKSHORTIFY === "n") document.getElementById("verify-btn3").classList.add("hidden");
+    // Note: LINKCENTS ka check hata diya.
 
-    // Handle verification button click for GPLinks API
+    // GPLinks 1
     document.getElementById("verify-btn1").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithGPLinks(verificationURL);
         window.location.href = shortURL; // Redirect via GPLinks
     });
 
-    // Handle verification button click for Linkcents API (NEW 2nd button)
+    // GPLinks 2 (Developers API)
     document.getElementById("verify-btn2").addEventListener("click", async function () {
-        const shortURL = await getShortenedURLWithLinkcents(verificationURL);
-        window.location.href = shortURL; // Redirect via Linkcents
+        const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
+        window.location.href = shortURL; // Redirect via GPLinks2
     });
 
-    // Handle verification button click for LinkShortify API
+    // LinkShortify
     document.getElementById("verify-btn3").addEventListener("click", async function () {
         const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
         window.location.href = shortURL; // Redirect via LinkShortify
@@ -172,19 +167,19 @@ export default async function verifyUser() {
         }
     }
 
-    // NEW: Linkcents API (2nd button)
-    async function getShortenedURLWithLinkcents(longURL) {
+    // GPLinks2 Developers API
+    async function getShortenedURLWithGPLinks2(longURL) {
         try {
-            const response = await fetch(`https://linkcents.com/api?api=${LINKCENTS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const response = await fetch(`https://gplinks.in/api?api=${GPLINKS2_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
             const data = await response.json();
             if (data.status === "success" && data.shortenedUrl) {
                 return data.shortenedUrl;
             } else {
-                console.error("Linkcents API error:", data);
+                console.error("GPLinks2 API error:", data);
                 return longURL; 
             }
         } catch (error) {
-            console.error("Error fetching Linkcents short link:", error);
+            console.error("Error fetching GPLinks2 short link:", error);
             return longURL;
         }
     }
