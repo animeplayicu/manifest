@@ -114,18 +114,49 @@ export default async function verifyUser() {
         }
         #verify-success-banner {
             position:fixed;
-            top:14px;
+            top:18px;
             left:50%;
             transform:translateX(-50%);
             background:#43a047;
             color:white;
-            padding:13px 28px;
-            border-radius:8px;
+            padding:14px 45px 14px 28px;
+            border-radius:9px;
             z-index:19999;
-            box-shadow:0 4px 18px rgba(0,0,0,0.18);
-            font-size:16px;
+            box-shadow:0 4px 16px rgba(0,0,0,0.17);
+            font-size:17px;
             font-family:Inter,sans-serif;
             letter-spacing:0.5px;
+            display:flex;
+            align-items:center;
+            min-width:260px;
+            max-width:90vw;
+        }
+        #verify-success-banner button {
+            margin-left:auto;
+            background:#fff;
+            color:#43a047;
+            border:none;
+            border-radius:6px;
+            padding:7px 18px;
+            cursor:pointer;
+            font-weight:600;
+            font-size:15px;
+            box-shadow:0 1px 3px rgba(45,90,50,0.07);
+            margin-right:-8px;
+            transition:background 0.2s;
+        }
+        #verify-success-banner button:hover {
+            background:#e6ffe5;
+        }
+        #verification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
         }
     `;
     document.head.appendChild(style);
@@ -197,15 +228,30 @@ export default async function verifyUser() {
         }
     }
 
-    // === One-Time Verified Popup Banner ===
+    // === Verified Success Banner (ek hi baar, close+auto-hide) ===
     function showVerifiedMessage(expirationTime) {
         if (localStorage.getItem("verifiedPopupShown") === "yes") return;
         const formattedTime = new Date(expirationTime).toLocaleString();
         const notice = document.createElement('div');
         notice.id = 'verify-success-banner';
-        notice.textContent = `✅ You are verified for 24 hours! Valid till: ${formattedTime}`;
+        notice.innerHTML = `
+            ✅ You are verified for 24 hours.<br>
+            <span style="font-size:15px;opacity:0.82;">Valid till: ${formattedTime}</span>
+            <button id="verify-done-btn" style="
+                margin-left:auto;background:#fff;color:#43a047;border:none;
+                border-radius:6px;padding:7px 18px;cursor:pointer;
+                font-weight:600;font-size:15px;box-shadow:0 1px 3px rgba(45,90,50,0.07);margin-right:-8px;
+            ">Done</button>
+        `;
         document.body.appendChild(notice);
-        setTimeout(() => notice.remove(), 7000);
+        // User can close via Done button
+        document.getElementById('verify-done-btn').onclick = () => {
+            notice.remove();
+        };
+        // Auto-hide after 10 sec
+        setTimeout(() => {
+            if (notice.parentNode) notice.remove();
+        }, 10000);
         localStorage.setItem("verifiedPopupShown", "yes");
     }
 }
