@@ -3,276 +3,204 @@ export default async function verifyUser() {
     const GPLINKS2_API_TOKEN = "dbd508517acd20ccd73cd6f2032276090810c005";
     const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const BASE_URL = window.location.href.split("?verify=")[0];
-    const storedToken = sessionStorage.getItem("userToken");
-    const storedVerificationTime = sessionStorage.getItem("verifiedUntil");
+    
+    // In-memory storage instead of localStorage
+    let userToken = "";
+    let verifiedUntil = 0;
+    let oneHourNotificationShown = false;
+    
     const currentTime = Date.now();
 
-    // Language content
+    // Translations
     const translations = {
         en: {
-            heading: "Skip Ads once and Enjoy Unlimited Anime Free Watch/Download for 24h.",
+            title: "Skip Ad once and Enjoy Unlimited Ad Free Anime Streaming till 12 A.M IST.",
             description: "Click on below Button and Go to another site and follow steps displayed there and finally you will be redirected to the Anime page.",
-            btn1: "Skip Ads 1 (24h)",
-            serverNote: "If the above server doesn't work. Try the below server",
-            btn2: "Skip Ads 2 (24h)",
-            btn3: "Skip Ads 3 (12h)",
-            tutorial: "How To Skip Ads Tutorial",
-            note: "If AdBlocker detected then disable PrivateDNS in your device settings."
+            btnPrimary: "Skip Ads and Enjoy",
+            serverText: "If the above server doesn't work. Try the below server",
+            btnSecondary: "Skip Ads and Enjoy Server 2",
+            tutorial: "Skip Ads tutorial",
+            adBlocker: "If AdBlocker detected then disable PrivateDNS in your device settings.",
+            link1: "GPLinks Verification",
+            link2: "GPLinks Alt Verification",
+            link3: "LinkShortify Verification"
         },
         hi: {
-            heading: "विज्ञापन छोड़ें और 24 घंटे के लिए असीमित एनीमे देखें/डाउनलोड करें।",
+            title: "एक बार विज्ञापन छोड़ें और 12 बजे IST तक असीमित विज्ञापन मुक्त एनीमे स्ट्रीमिंग का आनंद लें।",
             description: "नीचे दिए गए बटन पर क्लिक करें और दूसरी साइट पर जाएं और वहां दिखाए गए चरणों का पालन करें और अंत में आपको एनीमे पेज पर रीडायरेक्ट किया जाएगा।",
-            btn1: "विज्ञापन छोड़ें 1 (24 घंटे)",
-            serverNote: "यदि उपरोक्त सर्वर काम नहीं करता है। नीचे दिए गए सर्वर को आज़माएं",
-            btn2: "विज्ञापन छोड़ें 2 (24 घंटे)",
-            btn3: "विज्ञापन छोड़ें 3 (12 घंटे)",
-            tutorial: "विज्ञापन छोड़ने का ट्यूटोरियल",
-            note: "यदि AdBlocker का पता चला है तो अपनी डिवाइस सेटिंग्स में PrivateDNS अक्षम करें।"
-        },
-        ta: {
-            heading: "விளம்பரங்களைத் தவிர்த்து 24 மணி நேரம் வரம்பற்ற அனிமேவைப் பார்க்கவும்/பதிவிறக்கவும்.",
-            description: "கீழே உள்ள பொத்தானைக் கிளிக் செய்து மற்றொரு தளத்திற்குச் சென்று அங்கு காட்டப்படும் படிகளைப் பின்பற்றவும், இறுதியாக நீங்கள் அனிமே பக்கத்திற்கு திருப்பி விடப்படுவீர்கள்.",
-            btn1: "விளம்பரங்களைத் தவிர்க்கவும் 1 (24 மணி)",
-            serverNote: "மேலே உள்ள சர்வர் வேலை செய்யவில்லை என்றால். கீழே உள்ள சர்வரை முயற்சிக்கவும்",
-            btn2: "விளம்பரங்களைத் தவிர்க்கவும் 2 (24 மணி)",
-            btn3: "விளம்பரங்களைத் தவிர்க்கவும் 3 (12 மணி)",
-            tutorial: "விளம்பரங்களைத் தவிர்க்கும் பயிற்சி",
-            note: "AdBlocker கண்டறியப்பட்டால் உங்கள் சாதன அமைப்புகளில் PrivateDNS ஐ முடக்கவும்."
+            btnPrimary: "विज्ञापन छोड़ें और आनंद लें",
+            serverText: "यदि उपरोक्त सर्वर काम नहीं करता है। नीचे दिए गए सर्वर को आज़माएं",
+            btnSecondary: "विज्ञापन छोड़ें और सर्वर 2 का आनंद लें",
+            tutorial: "विज्ञापन ट्यूटोरियल छोड़ें",
+            adBlocker: "यदि AdBlocker का पता चला है तो अपनी डिवाइस सेटिंग में PrivateDNS को अक्षम करें।",
+            link1: "GPLinks सत्यापन",
+            link2: "GPLinks वैकल्पिक सत्यापन",
+            link3: "LinkShortify सत्यापन"
         },
         te: {
-            heading: "ఒకసారి ప్రకటనలను దాటవేయండి మరియు 24 గంటలు అపరిమిత అనిమే చూడండి/డౌన్‌లోడ్ చేయండి.",
-            description: "దిగువ బటన్‌పై క్లిక్ చేసి మరొక సైట్‌కు వెళ్లి అక్కడ ప్రదర్శించబడే దశలను అనుసరించండి మరియు చివరగా మీరు అనిమే పేజీకి దారి మళ్లించబడతారు.",
-            btn1: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
-            serverNote: "పై సర్వర్ పని చేయకపోతే. దిగువ సర్వర్‌ను ప్రయత్నించండి",
-            btn2: "ప్రకటనలను దాటవేయండి 2 (24 గంటలు)",
-            btn3: "ప్రకటనలను దాటవేయండి 3 (12 గంటలు)",
-            tutorial: "ప్రకటనలను దాటవేయడం ట్యుటోరియల్",
-            note: "AdBlocker గుర్తించబడితే మీ పరికర సెట్టింగ్‌లలో PrivateDNSని నిలిపివేయండి."
+            title: "ఒకసారి ప్రకటనను దాటవేయండి మరియు 12 A.M IST వరకు అపరిమిత ప్రకటన రహిత యానిమే స్ట్రీమింగ్‌ను ఆనందించండి.",
+            description: "దిగువ బటన్‌పై క్లిక్ చేసి మరొక సైట్‌కి వెళ్లి అక్కడ ప్రదర్శించబడే దశలను అనుసరించండి మరియు చివరకు మీరు యానిమే పేజీకి మళ్లించబడతారు.",
+            btnPrimary: "ప్రకటనలను దాటవేయండి మరియు ఆనందించండి",
+            serverText: "పై సర్వర్ పని చేయకపోతే. దిగువ సర్వర్‌ని ప్రయత్నించండి",
+            btnSecondary: "ప్రకటనలను దాటవేయండి మరియు సర్వర్ 2ని ఆనందించండి",
+            tutorial: "ప్రకటనల ట్యుటోరియల్‌ను దాటవేయండి",
+            adBlocker: "AdBlocker గుర్తించబడితే, మీ పరికర సెట్టింగ్‌లలో PrivateDNSని నిలిపివేయండి.",
+            link1: "GPLinks ధృవీకరణ",
+            link2: "GPLinks ప్రత్యామ్నాయ ధృవీకరణ",
+            link3: "LinkShortify ధృవీకరణ"
+        },
+        ta: {
+            title: "ஒரு முறை விளம்பரத்தைத் தவிர்த்து, 12 A.M IST வரை வரம்பற்ற விளம்பர இல்லாத அனிமே ஸ்ட்ரீமிங்கை அனுபவிக்கவும்.",
+            description: "கீழே உள்ள பொத்தானைக் கிளிக் செய்து மற்றொரு தளத்திற்குச் சென்று அங்கு காட்டப்படும் படிகளைப் பின்பற்றவும், இறுதியாக நீங்கள் அனிமே பக்கத்திற்கு திருப்பிவிடப்படுவீர்கள்.",
+            btnPrimary: "விளம்பரங்களைத் தவிர்த்து அனுபவிக்கவும்",
+            serverText: "மேலே உள்ள சர்வர் வேலை செய்யவில்லை என்றால். கீழே உள்ள சர்வரை முயற்சிக்கவும்",
+            btnSecondary: "விளம்பரங்களைத் தவிர்த்து சர்வர் 2ஐ அனுபவிக்கவும்",
+            tutorial: "விளம்பரங்களைத் தவிர்க்கும் பயிற்சி",
+            adBlocker: "AdBlocker கண்டறியப்பட்டால், உங்கள் சாதன அமைப்புகளில் PrivateDNSஐ முடக்கவும்.",
+            link1: "GPLinks சரிபார்ப்பு",
+            link2: "GPLinks மாற்று சரிபார்ப்பு",
+            link3: "LinkShortify சரிபார்ப்பு"
         }
     };
 
-    let currentLang = sessionStorage.getItem("preferredLang") || "en";
+    let currentLang = 'en';
 
-    if (storedVerificationTime && Date.now() > storedVerificationTime) {
-        sessionStorage.removeItem("oneHourLeftNotificationShown");
-    }
-
-    // 1 hour left warning
-    (function checkOneHourLeftNotification() {
-        const verifiedUntil = sessionStorage.getItem("verifiedUntil");
-        if (verifiedUntil) {
-            const timeLeft = verifiedUntil - Date.now();
-            const oneHour = 60 * 60 * 1000;
-            if (
-                timeLeft > 0 &&
-                timeLeft <= oneHour &&
-                sessionStorage.getItem("oneHourLeftNotificationShown") !== "yes"
-            ) {
-                showOneHourLeftNotification(verifiedUntil);
-                sessionStorage.setItem("oneHourLeftNotificationShown", "yes");
-            }
-            if (timeLeft > oneHour) {
-                sessionStorage.removeItem("oneHourLeftNotificationShown");
-            }
-        }
-    })();
-
-    if (storedVerificationTime && currentTime < storedVerificationTime) {
-        if (window.location.href.includes("verify=")) {
+    // Check if already verified
+    if (verifiedUntil && currentTime < verifiedUntil) {
+        if (window.location.href.includes("&verify=")) {
             window.location.href = BASE_URL;
         }
         return;
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-    const userToken = urlParams.get("verify");
-    const verifyDuration = urlParams.get("duration");
+    const urlToken = urlParams.get("verify");
 
-    if (userToken && userToken === storedToken) {
-        let duration = 24 * 60 * 60 * 1000;
-        if (verifyDuration === "12h") {
-            duration = 12 * 60 * 60 * 1000;
-        }
-        sessionStorage.setItem("verifiedUntil", currentTime + duration);
+    if (urlToken && urlToken === userToken) {
+        verifiedUntil = currentTime + 24 * 60 * 60 * 1000;
         window.location.href = BASE_URL;
         return;
     }
 
-    const newToken = storedToken || generateToken();
-    sessionStorage.setItem("userToken", newToken);
-    const verificationURL24h = `${BASE_URL}?verify=${newToken}&duration=24h`;
-    const verificationURL12h = `${BASE_URL}?verify=${newToken}&duration=12h`;
+    const newToken = userToken || generateToken();
+    userToken = newToken;
+    const verificationURL = `${BASE_URL}?verify=${newToken}`;
 
-    // --- BACKGROUND OVERLAY ---
-    const overlay = document.createElement('div');
-    overlay.id = "verification-overlay";
-    document.body.appendChild(overlay);
+    // Apply background blur
+    function applyBackgroundBlur() {
+        let blur = document.getElementById("verification-overlay");
+        if (!blur) {
+            blur = document.createElement('div');
+            blur.id = "verification-overlay";
+            blur.style.cssText = `
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                width: 100vw; height: 100vh;
+                background: rgba(0,0,0,0.6);
+                backdrop-filter: blur(12px);
+                z-index: 9998;
+            `;
+            document.body.appendChild(blur);
+        }
+    }
+    applyBackgroundBlur();
 
-    // --- POPUP CREATION ---
+    // Create popup
     const popup = document.createElement("div");
     popup.id = "verification-popup";
     popup.innerHTML = `
-        <div class="verification-container">
-            <div class="lang-tabs">
-                <div class="lang-tab ${currentLang === 'en' ? 'active' : ''}" data-lang="en">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
-                    <span>English</span>
-                </div>
-                <div class="lang-tab ${currentLang === 'hi' ? 'active' : ''}" data-lang="hi">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
-                    <span>हिंदी</span>
-                </div>
-                <div class="lang-tab ${currentLang === 'ta' ? 'active' : ''}" data-lang="ta">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
-                    <span>தமிழ்</span>
-                </div>
-                <div class="lang-tab ${currentLang === 'te' ? 'active' : ''}" data-lang="te">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
-                    <span>తెలుగు</span>
+        <div class="verify-container">
+            <div class="verify-header">
+                <div class="lang-switcher">
+                    <button class="lang-btn active" data-lang="en">English</button>
+                    <button class="lang-btn" data-lang="hi">Hindi</button>
+                    <button class="lang-btn" data-lang="te">Telugu</button>
+                    <button class="lang-btn" data-lang="ta">Tamil</button>
                 </div>
             </div>
             
-            <div class="content">
+            <div class="verify-content">
+                <h1 class="verify-title" id="verify-title"></h1>
+                <p class="verify-description" id="verify-description"></p>
                 
-                <h2 class="heading" id="verify-heading"></h2>
-                <p class="description" id="verify-description"></p>
-
-                <div class="buttons">
-                    <button class="btn btn-primary" id="verify-btn1">
-                        <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                        </svg>
-                        <span id="verify-btn1-text"></span>
-                    </button>
-                    
-                    <p class="server-note" id="verify-server-note"></p>
-                    
-                    <button class="btn btn-secondary" id="verify-btn2">
-                        <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                        </svg>
-                        <span id="verify-btn2-text"></span>
-                    </button>
-                    
-                    <button class="btn btn-tertiary" id="verify-btn3">
-                        <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                        </svg>
-                        <span id="verify-btn3-text"></span>
-                    </button>
-                </div>
-
-                <p class="tutorial-link">
-                    <a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank" id="verify-tutorial">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                    </a>
-                </p>
-
-                <div class="note">
-                    <svg class="note-icon" width="20" height="20" viewBox="0 0 48 48" fill="currentColor" stroke="none">
-                        <path d="M 24 4 C 12.972066 4 4 12.972074 4 24 C 4 35.027926 12.972066 44 24 44 C 35.027934 44 44 35.027926 44 24 C 44 12.972074 35.027934 4 24 4 z M 24 7 C 33.406615 7 41 14.593391 41 24 C 41 33.406609 33.406615 41 24 41 C 14.593385 41 7 33.406609 7 24 C 7 14.593391 14.593385 7 24 7 z M 24 14 A 2 2 0 0 0 24 18 A 2 2 0 0 0 24 14 z M 23.976562 20.978516 A 1.50015 1.50015 0 0 0 22.5 22.5 L 22.5 33.5 A 1.50015 1.50015 0 1 0 25.5 33.5 L 25.5 22.5 A 1.50015 1.50015 0 0 0 23.976562 20.978516 z"/>
+                <button class="verify-btn-primary" id="verify-btn-primary">
+                    <span id="btn-primary-text"></span>
+                </button>
+                
+                <p class="server-text" id="server-text"></p>
+                
+                <button class="verify-btn-secondary" id="verify-btn-secondary">
+                    <span id="btn-secondary-text"></span>
+                </button>
+                
+                <a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank" class="tutorial-link" id="tutorial-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
                     </svg>
-                    <p id="verify-note"></p>
+                    <span id="tutorial-text"></span>
+                </a>
+                
+                <p class="adblocker-text" id="adblocker-text"></p>
+                
+                <div class="verify-links">
+                    <div class="verify-link-item">
+                        <button class="verify-link-btn" id="verify-btn1">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <span id="link1-text"></span>
+                        </button>
+                        <span class="link-name" id="link1-name"></span>
+                    </div>
+                    
+                    <div class="verify-link-item">
+                        <button class="verify-link-btn" id="verify-btn2">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <span id="link2-text"></span>
+                        </button>
+                        <span class="link-name" id="link2-name"></span>
+                    </div>
+                    
+                    <div class="verify-link-item">
+                        <button class="verify-link-btn" id="verify-btn3">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <span id="link3-text"></span>
+                        </button>
+                        <span class="link-name" id="link3-name"></span>
+                    </div>
                 </div>
             </div>
         </div>
     `;
     document.body.appendChild(popup);
 
-    // Update content based on language
-    function updateLanguage(lang) {
-        currentLang = lang;
-        sessionStorage.setItem("preferredLang", lang);
-        const t = translations[lang];
-        
-        document.getElementById('verify-heading').textContent = t.heading;
-        document.getElementById('verify-description').textContent = t.description;
-        document.getElementById('verify-btn1-text').textContent = t.btn1;
-        document.getElementById('verify-server-note').textContent = t.serverNote;
-        document.getElementById('verify-btn2-text').textContent = t.btn2;
-        document.getElementById('verify-btn3-text').textContent = t.btn3;
-        document.getElementById('verify-tutorial').innerHTML = `
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-            </svg>
-            <span>${t.tutorial}</span>
-        `;
-        document.getElementById('verify-note').innerHTML = `<strong>Note:</strong> ${t.note}`;
-
-        // Update active tab
-        document.querySelectorAll('.lang-tab').forEach(tab => {
-            tab.classList.remove('active');
-            if (tab.dataset.lang === lang) {
-                tab.classList.add('active');
-            }
-        });
-    }
-
-    // Initialize with current language
-    updateLanguage(currentLang);
-
-    // Language tab switching
-    document.querySelectorAll('.lang-tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            updateLanguage(this.dataset.lang);
-        });
-    });
-
-    // CSS INJECTION
+    // Inject CSS
     const style = document.createElement("style");
     style.innerHTML = `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         #verification-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.92);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             z-index: 9998;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -45%);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-            }
         }
         
         #verification-popup {
@@ -281,364 +209,244 @@ export default async function verifyUser() {
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 9999;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            width: 100%;
-            max-width: 800px;
-            padding: 0 20px;
+            width: 90%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-
-        .verification-container {
-            width: 100%;
-            padding: 40px 32px;
-            background: rgba(23, 19, 24, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-                        0 0 0 1px rgba(139, 92, 246, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+        
+        .verify-container {
+            background: linear-gradient(145deg, #1a2332 0%, #0f1419 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
-
-        .lang-tabs {
+        
+        .verify-header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .lang-switcher {
             display: flex;
-            justify-content: center;
             gap: 8px;
-            margin-bottom: 32px;
             flex-wrap: wrap;
         }
-
-        .lang-tab {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
+        
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.08);
+            color: #a0aec0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-
-        .lang-tab svg {
-            opacity: 0.7;
+        
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
         }
-
-        .lang-tab:hover {
-            background: rgba(139, 92, 246, 0.1);
-            border-color: rgba(139, 92, 246, 0.3);
-            color: rgba(255, 255, 255, 0.9);
-            transform: translateY(-1px);
+        
+        .lang-btn.active {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
         }
-
-        .lang-tab.active {
-            background: rgba(139, 92, 246, 0.15);
-            border-color: rgba(139, 92, 246, 0.4);
-            color: #ffffff;
+        
+        .verify-content {
+            padding: 32px 24px;
         }
-
-        .lang-tab.active svg {
-            opacity: 1;
-        }
-
-        .content {
-            text-align: center;
-        }
-
-        .heading {
+        
+        .verify-title {
             color: #ffffff;
             font-size: 22px;
             font-weight: 600;
-            line-height: 1.4;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-
-        .description {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 32px;
-        }
-
-        .buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .server-note {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 13px;
-            margin: 4px 0;
-            font-weight: 500;
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 16px 28px;
-            border: none;
-            border-radius: 12px;
+        
+        .verify-description {
+            color: #cbd5e1;
             font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .verify-btn-primary,
+        .verify-btn-secondary {
+            width: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Inter', sans-serif;
-            position: relative;
-            overflow: hidden;
-            letter-spacing: -0.01em;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
-
-        .btn-icon {
-            flex-shrink: 0;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-tertiary {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-            color: white;
-            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-tertiary:hover {
+        
+        .verify-btn-primary:hover,
+        .verify-btn-secondary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            background: linear-gradient(135deg, #9333ea 0%, #8b5cf6 100%);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
         }
-
-        .btn-tertiary:active {
+        
+        .verify-btn-primary:active,
+        .verify-btn-secondary:active {
             transform: translateY(0);
         }
-
-        .btn-primary,
-        .btn-secondary {
-            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
-            color: white;
-            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        
+        .server-text {
+            color: #94a3b8;
+            font-size: 14px;
+            text-align: center;
+            margin: 20px 0 16px 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-
-        .btn-primary:hover,
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
-        }
-
-        .btn-primary:active,
-        .btn-secondary:active {
-            transform: translateY(0);
-        }
-
+        
         .tutorial-link {
-            margin: 20px 0 0 0;
-        }
-
-        .tutorial-link a {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             color: #a78bfa;
+            font-size: 15px;
+            font-weight: 600;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s;
-            padding: 8px 16px;
-            border-radius: 8px;
+            margin-bottom: 16px;
+            transition: color 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-
-        .tutorial-link a:hover {
+        
+        .tutorial-link:hover {
             color: #c4b5fd;
-            background: rgba(139, 92, 246, 0.1);
         }
-
-        .note {
+        
+        .adblocker-text {
+            color: #f87171;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            padding: 12px;
+            background: rgba(248, 113, 113, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #f87171;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .verify-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .verify-link-item {
             display: flex;
-            gap: 12px;
-            background: rgba(251, 191, 36, 0.08);
-            border-left: 3px solid #fbbf24;
-            padding: 16px;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .verify-link-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
             border-radius: 10px;
-            margin-top: 28px;
-            align-items: flex-start;
-        }
-
-        .note-icon {
-            flex-shrink: 0;
-            stroke: #fbbf24;
-            margin-top: 2px;
-        }
-
-        .note p {
-            color: #fbbf24;
-            font-size: 13px;
-            line-height: 1.6;
-            margin: 0;
-            text-align: left;
-        }
-
-        .note strong {
+            font-size: 14px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
         }
-
+        
+        .verify-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .verify-link-btn:active {
+            transform: translateY(0);
+        }
+        
+        .link-name {
+            color: #94a3b8;
+            font-size: 12px;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
         .hidden {
             display: none !important;
         }
-
-        #verify-1h-warning {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: #fff;
-            padding: 16px 24px;
-            border-radius: 12px;
-            z-index: 19999;
-            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.4);
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            min-width: 320px;
-            max-width: calc(100vw - 40px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -20px);
+        
+        @media (max-width: 640px) {
+            .verify-content {
+                padding: 24px 20px;
             }
-            to {
-                opacity: 1;
-                transform: translate(-50%, 0);
+            
+            .verify-title {
+                font-size: 18px;
             }
-        }
-
-        #verify-1h-warning svg {
-            flex-shrink: 0;
-        }
-
-        #verify-1h-warning button {
-            background: #fff;
-            color: #dc2626;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 20px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        #verify-1h-warning button:hover {
-            background: #fef2f2;
-            transform: scale(1.05);
-        }
-
-        @media (max-width: 600px) {
-            .verification-container {
-                padding: 32px 24px;
-            }
-                
-            .heading {
-                font-size: 19px;
-            }
-
-            .description {
-                font-size: 13px;
-            }
-
-            .btn {
-                padding: 14px 20px;
+            
+            .verify-description {
                 font-size: 14px;
-                gap: 8px;
             }
-
-            .btn-icon {
-                width: 18px;
-                height: 18px;
-            }
-
-            .lang-tab {
-                padding: 7px 12px;
-                font-size: 12px;
-            }
-
-            .lang-tab svg {
-                width: 14px;
-                height: 14px;
-            }
-
-            #verify-1h-warning {
-                font-size: 13px;
-                padding: 14px 18px;
-                flex-direction: column;
-                text-align: center;
-                min-width: auto;
-                gap: 12px;
-            }
-
-            .note {
-                padding: 14px;
-                gap: 10px;
-            }
-
-            .note p {
-                font-size: 12px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            #verification-popup {
-                padding: 0 16px;
-            }
-
-            .verification-container {
-                padding: 28px 20px;
-            }
-
-            .heading {
-                font-size: 17px;
-            }
-
-            .lang-tabs {
-                gap: 6px;
+            
+            .verify-links {
+                grid-template-columns: 1fr;
             }
         }
     `;
     document.head.appendChild(style);
 
-    // Fetch and apply config settings
+    // Update text function
+    function updateText(lang) {
+        const t = translations[lang];
+        document.getElementById('verify-title').textContent = t.title;
+        document.getElementById('verify-description').textContent = t.description;
+        document.getElementById('btn-primary-text').textContent = t.btnPrimary;
+        document.getElementById('server-text').textContent = t.serverText;
+        document.getElementById('btn-secondary-text').textContent = t.btnSecondary;
+        document.getElementById('tutorial-text').textContent = t.tutorial;
+        document.getElementById('adblocker-text').textContent = t.adBlocker;
+        document.getElementById('link1-text').textContent = '✓ Verify Now 1';
+        document.getElementById('link2-text').textContent = '✓ Verify Now 2';
+        document.getElementById('link3-text').textContent = '✓ Verify Now 3';
+        document.getElementById('link1-name').textContent = t.link1;
+        document.getElementById('link2-name').textContent = t.link2;
+        document.getElementById('link3-name').textContent = t.link3;
+    }
+
+    // Language switcher
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentLang = this.dataset.lang;
+            updateText(currentLang);
+        });
+    });
+
+    // Initial text
+    updateText('en');
+
+    // Fetch config
     let config;
     try {
         const response = await fetch(
@@ -650,25 +458,36 @@ export default async function verifyUser() {
         config = { GPLINKS: "y", LINKSHORTIFY: "y" };
     }
 
-    if (config.GPLINKS === "n") document.getElementById("verify-btn1").classList.add("hidden");
-    if (config.LINKSHORTIFY === "n") document.getElementById("verify-btn3").classList.add("hidden");
+    if (config.GPLINKS === "n") {
+        document.querySelector('.verify-link-item:nth-child(1)').classList.add("hidden");
+    }
+    if (config.LINKSHORTIFY === "n") {
+        document.querySelector('.verify-link-item:nth-child(3)').classList.add("hidden");
+    }
 
-    // Button click handlers
-    document.getElementById("verify-btn1").addEventListener("click", async function () {
-        this.style.transform = 'scale(0.95)';
-        const shortURL = await getShortenedURLWithGPLinks(verificationURL24h);
+    // Button event listeners
+    document.getElementById("verify-btn-primary").addEventListener("click", async function() {
+        const shortURL = await getShortenedURLWithGPLinks(verificationURL);
         window.location.href = shortURL;
     });
-    
-    document.getElementById("verify-btn2").addEventListener("click", async function () {
-        this.style.transform = 'scale(0.95)';
-        const shortURL = await getShortenedURLWithGPLinks2(verificationURL24h);
+
+    document.getElementById("verify-btn-secondary").addEventListener("click", async function() {
+        const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
         window.location.href = shortURL;
     });
-    
-    document.getElementById("verify-btn3").addEventListener("click", async function () {
-        this.style.transform = 'scale(0.95)';
-        const shortURL = await getShortenedURLWithLinkShortify(verificationURL12h);
+
+    document.getElementById("verify-btn1").addEventListener("click", async function() {
+        const shortURL = await getShortenedURLWithGPLinks(verificationURL);
+        window.location.href = shortURL;
+    });
+
+    document.getElementById("verify-btn2").addEventListener("click", async function() {
+        const shortURL = await getShortenedURLWithGPLinks2(verificationURL);
+        window.location.href = shortURL;
+    });
+
+    document.getElementById("verify-btn3").addEventListener("click", async function() {
+        const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
         window.location.href = shortURL;
     });
 
@@ -722,29 +541,5 @@ export default async function verifyUser() {
             alert("Error fetching LinkShortify short link");
             return longURL;
         }
-    }
-
-    function showOneHourLeftNotification(expirationTime) {
-        if (sessionStorage.getItem("oneHourLeftNotificationShown") === "yes") return;
-        const formattedTime = new Date(Number(expirationTime)).toLocaleTimeString();
-        const notice = document.createElement('div');
-        notice.id = 'verify-1h-warning';
-        notice.innerHTML = `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <div style="flex: 1;">
-                <div style="font-weight: 600; margin-bottom: 4px;">Only 1 hour left!</div>
-                <div style="font-size: 12px; opacity: 0.9;">Your verification expires at ${formattedTime}</div>
-            </div>
-            <button id="verify-1h-done-btn">OK</button>
-        `;
-        document.body.appendChild(notice);
-        document.getElementById('verify-1h-done-btn').onclick = () => notice.remove();
-        setTimeout(() => {
-            if (notice.parentNode) notice.remove();
-        }, 12000);
-        sessionStorage.setItem("oneHourLeftNotificationShown", "yes");
     }
 }
