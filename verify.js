@@ -9,6 +9,61 @@ export default async function verifyUser() {
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
     const currentTime = Date.now();
 
+    // Language translations
+    const translations = {
+        en: {
+            title: "Skip Ads once and Enjoy Unlimited Anime Free Watch/Download.",
+            tutorialLink: "How To Skip Ads ?",
+            description: "Click on any button below, complete the verification, and you'll be redirected back to the anime page.",
+            btn1Text: "Skip Ads 1 (24h)",
+            btn2Text: "Skip Ads 2 (24h)",
+            btn3Text: "Skip Ads 3 (12h)",
+            warningText: "If AdBlocker detected, please disable PrivateDNS in your device settings.",
+            loading: "Loading...",
+            oneHourWarning: "⏰ Only 1 hour left! <b>Your verification will expire soon.</b>",
+            expiresAt: "Expires at:"
+        },
+        hi: {
+            title: "एक बार विज्ञापन छोड़ें और असीमित एनीमे मुफ्त देखें/डाउनलोड करें।",
+            tutorialLink: "विज्ञापन कैसे छोड़ें?",
+            description: "नीचे किसी भी बटन पर क्लिक करें, सत्यापन पूरा करें, और आपको एनीमे पेज पर वापस भेज दिया जाएगा।",
+            btn1Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
+            btn2Text: "विज्ञापन छोड़ें 2 (24 घंटे)",
+            btn3Text: "विज्ञापन छोड़ें 3 (12 घंटे)",
+            warningText: "यदि एडब्लॉकर का पता चला है, तो कृपया अपनी डिवाइस सेटिंग्स में प्राइवेट DNS अक्षम करें।",
+            loading: "लोड हो रहा है...",
+            oneHourWarning: "⏰ केवल 1 घंटा बचा है! <b>आपका सत्यापन जल्द ही समाप्त हो जाएगा।</b>",
+            expiresAt: "समाप्ति समय:"
+        },
+        te: {
+            title: "ఒకసారి ప్రకటనలను దాటవేయండి మరియు అపరిమిత అనిమే ఉచితంగా చూడండి/డౌన్‌లోడ్ చేయండి.",
+            tutorialLink: "ప్రకటనలను ఎలా దాటవేయాలి?",
+            description: "దిగువ ఏదైనా బటన్‌పై క్లిక్ చేయండి, ధృవీకరణ పూర్తి చేయండి మరియు మీరు అనిమే పేజీకి తిరిగి మళ్లించబడతారు.",
+            btn1Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
+            btn2Text: "ప్రకటనలను దాటవేయండి 2 (24 గంటలు)",
+            btn3Text: "ప్రకటనలను దాటవేయండి 3 (12 గంటలు)",
+            warningText: "యాడ్‌బ్లాకర్ కనుగొనబడితే, దయచేసి మీ పరికర సెట్టింగ్‌లలో ప్రైవేట్DNS ని నిలిపివేయండి.",
+            loading: "లోడ్ అవుతోంది...",
+            oneHourWarning: "⏰ కేవలం 1 గంట మిగిలింది! <b>మీ ధృవీకరణ త్వరలో ముగుస్తుంది।</b>",
+            expiresAt: "ముగిసే సమయం:"
+        },
+        ta: {
+            title: "விளம்பரங்களை ஒருமுறை தவிர்க்கவும் மற்றும் வரம்பற்ற அனிமேவை இலவசமாக பார்க்கவும்/பதிவிறக்கவும்.",
+            tutorialLink: "விளம்பரங்களை எப்படி தவிர்ப்பது?",
+            description: "கீழே உள்ள எந்த பொத்தானையும் கிளிக் செய்து, சரிபார்ப்பை முடித்து, நீங்கள் அனிமே பக்கத்திற்கு திருப்பிவிடப்படுவீர்கள்.",
+            btn1Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
+            btn2Text: "விளம்பரங்களைத் தவிர் 2 (24 மணி)",
+            btn3Text: "விளம்பரங்களைத் தவிர் 3 (12 மணி)",
+            warningText: "விளம்பரத் தடுப்பு கண்டறியப்பட்டால், உங்கள் சாதன அமைப்புகளில் தனிப்பட்ட DNS ஐ முடக்கவும்.",
+            loading: "ஏற்றுகிறது...",
+            oneHourWarning: "⏰ 1 மணி மட்டுமே உள்ளது! <b>உங்கள் சரிபார்ப்பு விரைவில் காலாவதியாகும்.</b>",
+            expiresAt: "காலாவதியாகும் நேரம்:"
+        }
+    };
+
+    // Get saved language or default to English
+    let currentLang = localStorage.getItem("selectedLanguage") || "en";
+
     // Initialize Anti-Bypass Protection
     initAntiBypassProtection();
 
@@ -47,7 +102,6 @@ export default async function verifyUser() {
     const userToken = urlParams.get("verify");
 
     if (userToken && userToken === storedToken) {
-        // Check verification type for duration (12h or 24h)
         const verificationType = localStorage.getItem("verificationType") || "24h";
         const duration = verificationType === "12h" ? 12 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
         localStorage.setItem("verifiedUntil", currentTime + duration);
@@ -94,33 +148,29 @@ export default async function verifyUser() {
     const popup = document.createElement("div");
     popup.id = "verification-popup";
     popup.innerHTML = `
-        <div class="close-btn">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </div>
-
         <div class="lang-tabs">
-            <div class="lang-tab active">English</div>
-            <div class="lang-tab">हिंदी</div>
-            <div class="lang-tab">తెలుగు</div>
-            <div class="lang-tab">தமிழ்</div>
+            <div class="lang-tab ${currentLang === 'en' ? 'active' : ''}" data-lang="en">English</div>
+            <div class="lang-tab ${currentLang === 'hi' ? 'active' : ''}" data-lang="hi">हिंदी</div>
+            <div class="lang-tab ${currentLang === 'te' ? 'active' : ''}" data-lang="te">తెలుగు</div>
+            <div class="lang-tab ${currentLang === 'ta' ? 'active' : ''}" data-lang="ta">தமிழ்</div>
         </div>
 
-        <h1 class="title">Skip Ads once and Enjoy Unlimited Anime Free Watch/Download.</h1>
+        <h1 class="title" data-translate="title">${translations[currentLang].title}</h1>
 
         <div class="tutorial-link">
             <a href="https://www.animeplay.icu/p/how-to-verify.html" target="_blank">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-                How To Skip Ads Tutorial
+                <img 
+                    src="https://cdn-icons-png.flaticon.com/512/13906/13906221.png" 
+                    alt="Play icon" 
+                    width="20" 
+                    height="20" 
+                    style="vertical-align: middle; margin-right: 6px;"
+                />
+                <span data-translate="tutorialLink">${translations[currentLang].tutorialLink}</span>
             </a>
         </div>
 
-        <p class="description">
-            Click on any button below, complete the verification, and you'll be redirected back to the anime page.
-        </p>
+        <p class="description" data-translate="description">${translations[currentLang].description}</p>
 
         <div class="buttons">
             <div class="btn-wrapper" id="btn-wrapper-1">
@@ -128,9 +178,8 @@ export default async function verifyUser() {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
                     </svg>
-                    <span class="btn-text">Skip Ads 1 (24h)</span>
+                    <span class="btn-text" data-translate="btn1Text">${translations[currentLang].btn1Text}</span><p class="btn-note">LinkShortify</p>
                 </button>
-                <p class="btn-note">Uses LinkShortify API</p>
             </div>
 
             <div class="btn-wrapper" id="btn-wrapper-2">
@@ -138,9 +187,8 @@ export default async function verifyUser() {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                     </svg>
-                    <span class="btn-text">Skip Ads 2 (24h)</span>
+                    <span class="btn-text" data-translate="btn2Text">${translations[currentLang].btn2Text}</span><p class="btn-note">GPLinks</p>
                 </button>
-                <p class="btn-note">Uses GPLinks API</p>
             </div>
 
             <div class="btn-wrapper" id="btn-wrapper-3">
@@ -148,9 +196,8 @@ export default async function verifyUser() {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
-                    <span class="btn-text">Skip Ads 3 (12h)</span>
+                    <span class="btn-text" data-translate="btn3Text">${translations[currentLang].btn3Text}</span><p class="btn-note">AroLinks</p>
                 </button>
-                <p class="btn-note">Uses AroLinks API</p>
             </div>
         </div>
 
@@ -159,7 +206,7 @@ export default async function verifyUser() {
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
-                <span>If AdBlocker detected, please disable PrivateDNS in your device settings.</span>
+                <span data-translate="warningText">${translations[currentLang].warningText}</span>
             </p>
         </div>
 
@@ -210,11 +257,11 @@ export default async function verifyUser() {
             z-index: 999;
             max-width: 480px;
             width: 90%;
-            max-height: 90vh;
+            max-height: 80vh;
             overflow-y: auto;
             background: linear-gradient(135deg, rgba(26, 0, 31, 0.95), rgba(20, 10, 30, 0.95));
-            border-radius: 24px;
-            padding: 36px 32px;
+            border-radius: 20px;
+            padding: 20px 22px;
             border: 1px solid rgba(123, 31, 162, 0.4);
             box-shadow: 
                 0 25px 80px rgba(0, 0, 0, 0.6),
@@ -225,53 +272,8 @@ export default async function verifyUser() {
             font-family: 'Poppins', sans-serif;
         }
 
-        /* Custom Scrollbar */
         #verification-popup::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #verification-popup::-webkit-scrollbar-track {
-            background: rgba(123, 31, 162, 0.1);
-            border-radius: 10px;
-        }
-
-        #verification-popup::-webkit-scrollbar-thumb {
-            background: rgba(123, 31, 162, 0.5);
-            border-radius: 10px;
-        }
-
-        #verification-popup::-webkit-scrollbar-thumb:hover {
-            background: rgba(123, 31, 162, 0.7);
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #888;
-            z-index: 10;
-        }
-
-        .close-btn:hover {
-            background: rgba(123, 31, 162, 0.3);
-            border-color: rgba(123, 31, 162, 0.6);
-            color: #fff;
-            transform: rotate(90deg);
-        }
-
-        .close-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 0px;
         }
 
         .lang-tabs {
@@ -318,7 +320,7 @@ export default async function verifyUser() {
 
         .tutorial-link a {
             color: #b388ff;
-            text-decoration: none;
+            text-decoration: underline;
             font-size: 14px;
             font-weight: 500;
             display: inline-flex;
@@ -352,8 +354,8 @@ export default async function verifyUser() {
         .buttons {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .btn-wrapper {
@@ -362,9 +364,9 @@ export default async function verifyUser() {
 
         .btn {
             width: 100%;
-            padding: 18px 24px;
+            padding: 15px 20px;
             background: linear-gradient(135deg, rgba(123, 31, 162, 0.8), rgba(156, 39, 176, 0.8));
-            border: 1px solid rgba(156, 39, 176, 0.5);
+            border: 0.5px solid rgba(156, 39, 176, 0.5);
             border-radius: 12px;
             color: white;
             font-size: 15px;
@@ -428,7 +430,7 @@ export default async function verifyUser() {
         .btn-note {
             margin-top: 6px;
             margin-left: 32px;
-            color: #777;
+            color: #dbdbdbff;
             font-size: 12px;
         }
 
@@ -448,14 +450,14 @@ export default async function verifyUser() {
             background: rgba(255, 152, 0, 0.12);
             border: 1px solid rgba(255, 152, 0, 0.4);
             border-radius: 12px;
-            padding: 14px 16px;
+            padding: 0px 10px 0 10px;
             margin-bottom: 24px;
         }
 
         .warning p {
             color: #ffb74d;
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.2;
             display: flex;
             align-items: flex-start;
             gap: 10px;
@@ -597,18 +599,6 @@ export default async function verifyUser() {
                 max-height: 85vh;
             }
 
-            .close-btn {
-                top: 16px;
-                right: 16px;
-                width: 32px;
-                height: 32px;
-            }
-
-            .close-btn svg {
-                width: 18px;
-                height: 18px;
-            }
-
             .lang-tabs {
                 gap: 6px;
                 margin-bottom: 20px;
@@ -694,7 +684,6 @@ export default async function verifyUser() {
                 width: 100%;
             }
 
-            /* Hide glow orbs on mobile for performance */
             .orb-1, .orb-2 {
                 display: none;
             }
@@ -744,7 +733,6 @@ export default async function verifyUser() {
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
-        // Default config if fetch fails
         config = { LINKSHORTIFY: "on", GPLINKS: "on", NEWAPI: "on" };
     }
 
@@ -759,41 +747,41 @@ export default async function verifyUser() {
         document.getElementById("btn-wrapper-3").classList.add("hidden");
     }
 
-    // Language tab switching
+    // Language tab switching with translation update
     const langTabs = document.querySelectorAll('.lang-tab');
     langTabs.forEach(tab => {
         tab.addEventListener('click', function() {
             langTabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
+            
+            const selectedLang = this.getAttribute('data-lang');
+            currentLang = selectedLang;
+            localStorage.setItem("selectedLanguage", selectedLang);
+            
+            // Update all translatable elements
+            updateLanguage(selectedLang);
         });
     });
 
-    // Close button functionality
-    document.querySelector('.close-btn').addEventListener('click', () => {
-        popup.style.animation = 'slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) reverse';
-        overlay.style.animation = 'fadeIn 0.4s ease-out reverse';
-        setTimeout(() => {
-            console.log('Modal closed by user');
-        }, 400);
-    });
-
-    // Close on overlay click
-    overlay.addEventListener('click', () => {
-        popup.style.animation = 'slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) reverse';
-        overlay.style.animation = 'fadeIn 0.4s ease-out reverse';
-    });
-
-    // Prevent modal close when clicking inside
-    popup.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
+    function updateLanguage(lang) {
+        const trans = translations[lang];
+        
+        // Update all elements with data-translate attribute
+        document.querySelectorAll('[data-translate]').forEach(element => {
+            const key = element.getAttribute('data-translate');
+            if (trans[key]) {
+                element.innerHTML = trans[key];
+            }
+        });
+    }
 
     // Button 1: LinkShortify (24h)
     document.getElementById("verify-btn1").addEventListener("click", async function () {
         if (this.disabled) return;
         this.disabled = true;
-        const originalText = this.querySelector('.btn-text').innerHTML;
-        this.querySelector('.btn-text').innerHTML = 'Loading...';
+        const btnTextElement = this.querySelector('.btn-text');
+        const originalText = btnTextElement.innerHTML;
+        btnTextElement.innerHTML = translations[currentLang].loading;
         this.style.transform = 'scale(0.97)';
         this.style.opacity = '0.7';
         
@@ -802,7 +790,7 @@ export default async function verifyUser() {
         if (shortURL !== verificationURL) {
             window.location.href = shortURL;
         } else {
-            this.querySelector('.btn-text').innerHTML = originalText;
+            btnTextElement.innerHTML = originalText;
             this.disabled = false;
             this.style.opacity = '1';
         }
@@ -812,8 +800,9 @@ export default async function verifyUser() {
     document.getElementById("verify-btn2").addEventListener("click", async function () {
         if (this.disabled) return;
         this.disabled = true;
-        const originalText = this.querySelector('.btn-text').innerHTML;
-        this.querySelector('.btn-text').innerHTML = 'Loading...';
+        const btnTextElement = this.querySelector('.btn-text');
+        const originalText = btnTextElement.innerHTML;
+        btnTextElement.innerHTML = translations[currentLang].loading;
         this.style.transform = 'scale(0.97)';
         this.style.opacity = '0.7';
         
@@ -822,7 +811,7 @@ export default async function verifyUser() {
         if (shortURL !== verificationURL) {
             window.location.href = shortURL;
         } else {
-            this.querySelector('.btn-text').innerHTML = originalText;
+            btnTextElement.innerHTML = originalText;
             this.disabled = false;
             this.style.opacity = '1';
         }
@@ -832,8 +821,9 @@ export default async function verifyUser() {
     document.getElementById("verify-btn3").addEventListener("click", async function () {
         if (this.disabled) return;
         this.disabled = true;
-        const originalText = this.querySelector('.btn-text').innerHTML;
-        this.querySelector('.btn-text').innerHTML = 'Loading...';
+        const btnTextElement = this.querySelector('.btn-text');
+        const originalText = btnTextElement.innerHTML;
+        btnTextElement.innerHTML = translations[currentLang].loading;
         this.style.transform = 'scale(0.97)';
         this.style.opacity = '0.7';
         
@@ -842,7 +832,7 @@ export default async function verifyUser() {
         if (shortURL !== verificationURL) {
             window.location.href = shortURL;
         } else {
-            this.querySelector('.btn-text').innerHTML = originalText;
+            btnTextElement.innerHTML = originalText;
             this.disabled = false;
             this.style.opacity = '1';
         }
@@ -906,11 +896,12 @@ export default async function verifyUser() {
     function showOneHourLeftNotification(expirationTime) {
         if (localStorage.getItem("oneHourLeftNotificationShown") === "yes") return;
         const formattedTime = new Date(Number(expirationTime)).toLocaleTimeString();
+        const trans = translations[currentLang];
         const notice = document.createElement('div');
         notice.id = 'verify-1h-warning';
         notice.innerHTML = `
-            ⏰ Only 1 hour left! <b>Your verification will expire soon.</b><br>
-            <span style="font-size:15px;opacity:0.87;">Expires at: ${formattedTime}</span>
+            ${trans.oneHourWarning}<br>
+            <span style="font-size:15px;opacity:0.87;">${trans.expiresAt} ${formattedTime}</span>
             <button id="verify-1h-done-btn">OK</button>
         `;
         document.body.appendChild(notice);
@@ -976,39 +967,32 @@ export default async function verifyUser() {
     function initAntiBypassProtection() {
         let devtoolsOpen = false;
 
-        // Disable right-click
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             return false;
         });
 
-        // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
         document.addEventListener('keydown', (e) => {
-            // F12
             if (e.keyCode === 123) {
                 e.preventDefault();
                 showDevToolsWarning();
                 return false;
             }
-            // Ctrl+Shift+I
             if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
                 e.preventDefault();
                 showDevToolsWarning();
                 return false;
             }
-            // Ctrl+Shift+J
             if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
                 e.preventDefault();
                 showDevToolsWarning();
                 return false;
             }
-            // Ctrl+Shift+C
             if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
                 e.preventDefault();
                 showDevToolsWarning();
                 return false;
             }
-            // Ctrl+U (View Source)
             if (e.ctrlKey && e.keyCode === 85) {
                 e.preventDefault();
                 showDevToolsWarning();
@@ -1016,7 +1000,6 @@ export default async function verifyUser() {
             }
         });
 
-        // Detect DevTools open via window size detection
         const detectDevTools = () => {
             const threshold = 160;
             const widthThreshold = window.outerWidth - window.innerWidth > threshold;
@@ -1032,10 +1015,8 @@ export default async function verifyUser() {
             }
         };
 
-        // Check periodically
         setInterval(detectDevTools, 1000);
 
-        // Additional debugger detection
         const detectDebugger = () => {
             const before = Date.now();
             debugger;
@@ -1062,7 +1043,6 @@ export default async function verifyUser() {
         `;
         document.body.appendChild(warningDiv);
 
-        // Auto-remove warning after 3 seconds
         setTimeout(() => {
             const warning = document.getElementById('devtools-warning');
             if (warning) warning.remove();
@@ -1075,7 +1055,7 @@ export default async function verifyUser() {
         canvas.height = window.innerHeight;
 
         const stars = [];
-        const starCount = window.innerWidth < 768 ? 100 : 200; // Less stars on mobile
+        const starCount = window.innerWidth < 768 ? 100 : 200;
 
         class Star {
             constructor() {
