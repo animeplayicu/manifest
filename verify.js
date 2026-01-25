@@ -1,6 +1,5 @@
 export default async function verifyUser() {
     // API TOKENS
-    const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
     const AROLINKS_API_TOKEN = "98b5522d34aba1ef83a9197dd406ecfbfc6f8629";
     
@@ -173,15 +172,6 @@ export default async function verifyUser() {
         <p class="description" data-translate="description">${translations[currentLang].description}</p>
 
         <div class="buttons">
-            <div class="btn-wrapper" id="btn-wrapper-1">
-                <button class="btn btn-1" id="verify-btn1">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-                    </svg>
-                    <span class="btn-text" data-translate="btn1Text">${translations[currentLang].btn1Text}</span><p class="btn-note">LinkShortify</p>
-                </button>
-            </div>
-
             <div class="btn-wrapper" id="btn-wrapper-2">
                 <button class="btn btn-2" id="verify-btn2">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -434,7 +424,7 @@ export default async function verifyUser() {
             font-size: 12px;
         }
 
-        .btn-1 {
+        . {
             background: linear-gradient(135deg, rgba(123, 31, 162, 0.9), rgba(156, 39, 176, 0.9));
         }
 
@@ -733,14 +723,11 @@ export default async function verifyUser() {
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
-        config = { LINKSHORTIFY: "on", GPLINKS: "on", NEWAPI: "on" };
+        config = { GPLINKS: "on", NEWAPI: "on" };
     }
 
     // Apply show/hide based on config
-    if (config.LINKSHORTIFY === "n" || config.LINKSHORTIFY === "off") {
-        document.getElementById("btn-wrapper-1").classList.add("hidden");
-    }
-    if (config.GPLINKS === "n" || config.GPLINKS === "off") {
+        if (config.GPLINKS === "n" || config.GPLINKS === "off") {
         document.getElementById("btn-wrapper-2").classList.add("hidden");
     }
     if (config.NEWAPI === "n" || config.NEWAPI === "off") {
@@ -775,27 +762,6 @@ export default async function verifyUser() {
         });
     }
 
-    // Button 1: LinkShortify (24h)
-    document.getElementById("verify-btn1").addEventListener("click", async function () {
-        if (this.disabled) return;
-        this.disabled = true;
-        const btnTextElement = this.querySelector('.btn-text');
-        const originalText = btnTextElement.innerHTML;
-        btnTextElement.innerHTML = translations[currentLang].loading;
-        this.style.transform = 'scale(0.97)';
-        this.style.opacity = '0.7';
-        
-        localStorage.setItem("verificationType", "24h");
-        const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
-        if (shortURL !== verificationURL) {
-            window.location.href = shortURL;
-        } else {
-            btnTextElement.innerHTML = originalText;
-            this.disabled = false;
-            this.style.opacity = '1';
-        }
-    });
-    
     // Button 2: GPLinks (24h)
     document.getElementById("verify-btn2").addEventListener("click", async function () {
         if (this.disabled) return;
@@ -842,24 +808,7 @@ export default async function verifyUser() {
         return Math.random().toString(36).substr(2, 10);
     }
 
-    async function getShortenedURLWithLinkShortify(longURL) {
-        try {
-            const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
-            const data = await response.json();
-            if (data.status === "success" && data.shortenedUrl) {
-                return data.shortenedUrl;
-            } else {
-                showErrorNotification("LinkShortify API Error. Please try another option.");
-                return longURL;
-            }
-        } catch (error) {
-            showErrorNotification("Network error with LinkShortify. Please try another option.");
-            console.error("LinkShortify Error:", error);
-            return longURL;
-        }
-    }
-
-    async function getShortenedURLWithGPLinks(longURL) {
+        async function getShortenedURLWithGPLinks(longURL) {
         try {
             const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
             const data = await response.json();
