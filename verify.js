@@ -1,10 +1,8 @@
 export default async function verifyUser() {
     // API TOKENS
-const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
-const VPLINK_API_TOKEN = "34028a4b6f0e35b53107a251cedb220da89821e0";
-const AROLINKS_API_TOKEN = "98b5522d34aba1ef83a9197dd406ecfbfc6f8629";
-const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
-
+    const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
+    const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
+    const AROLINKS_API_TOKEN = "98b5522d34aba1ef83a9197dd406ecfbfc6f8629";
     
     const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
@@ -30,8 +28,8 @@ const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
             tutorialLink: "विज्ञापन कैसे छोड़ें?",
             description: "नीचे किसी भी बटन पर क्लिक करें, सत्यापन पूरा करें, और आपको एनीमे पेज पर वापस भेज दिया जाएगा।",
             btn1Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
-            btn2Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
-            btn3Text: "विज्ञापन छोड़ें 2 (12 घंटे)",
+            btn2Text: "विज्ञापन छोड़ें 2 (24 घंटे)",
+            btn3Text: "विज्ञापन छोड़ें 3 (12 घंटे)",
             warningText: "यदि एडब्लॉकर का पता चला है, तो कृपया अपनी डिवाइस सेटिंग्स में प्राइवेट DNS अक्षम करें।",
             loading: "लोड हो रहा है...",
             oneHourWarning: "⏰ केवल 1 घंटा बचा है! <b>आपका सत्यापन जल्द ही समाप्त हो जाएगा।</b>",
@@ -42,8 +40,8 @@ const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
             tutorialLink: "ప్రకటనలను ఎలా దాటవేయాలి?",
             description: "దిగువ ఏదైనా బటన్‌పై క్లిక్ చేయండి, ధృవీకరణ పూర్తి చేయండి మరియు మీరు అనిమే పేజీకి తిరిగి మళ్లించబడతారు.",
             btn1Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
-            btn2Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
-            btn3Text: "ప్రకటనలను దాటవేయండి 2 (12 గంటలు)",
+            btn2Text: "ప్రకటనలను దాటవేయండి 2 (24 గంటలు)",
+            btn3Text: "ప్రకటనలను దాటవేయండి 3 (12 గంటలు)",
             warningText: "యాడ్‌బ్లాకర్ కనుగొనబడితే, దయచేసి మీ పరికర సెట్టింగ్‌లలో ప్రైవేట్DNS ని నిలిపివేయండి.",
             loading: "లోడ్ అవుతోంది...",
             oneHourWarning: "⏰ కేవలం 1 గంట మిగిలింది! <b>మీ ధృవీకరణ త్వరలో ముగుస్తుంది।</b>",
@@ -54,8 +52,8 @@ const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
             tutorialLink: "விளம்பரங்களை எப்படி தவிர்ப்பது?",
             description: "கீழே உள்ள எந்த பொத்தானையும் கிளிக் செய்து, சரிபார்ப்பை முடித்து, நீங்கள் அனிமே பக்கத்திற்கு திருப்பிவிடப்படுவீர்கள்.",
             btn1Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
-            btn2Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
-            btn3Text: "விளம்பரங்களைத் தவிர் 2 (12 மணி)",
+            btn2Text: "விளம்பரங்களைத் தவிர் 2 (24 மணி)",
+            btn3Text: "விளம்பரங்களைத் தவிர் 3 (12 மணி)",
             warningText: "விளம்பரத் தடுப்பு கண்டறியப்பட்டால், உங்கள் சாதன அமைப்புகளில் தனிப்பட்ட DNS ஐ முடக்கவும்.",
             loading: "ஏற்றுகிறது...",
             oneHourWarning: "⏰ 1 மணி மட்டுமே உள்ளது! <b>உங்கள் சரிபார்ப்பு விரைவில் காலாவதியாகும்.</b>",
@@ -175,6 +173,15 @@ const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
         <p class="description" data-translate="description">${translations[currentLang].description}</p>
 
         <div class="buttons">
+            <div class="btn-wrapper" id="btn-wrapper-1">
+                <button class="btn btn-1" id="verify-btn1">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                    </svg>
+                    <span class="btn-text" data-translate="btn1Text">${translations[currentLang].btn1Text}</span><p class="btn-note">LinkShortify</p>
+                </button>
+            </div>
+
             <div class="btn-wrapper" id="btn-wrapper-2">
                 <button class="btn btn-2" id="verify-btn2">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -427,7 +434,7 @@ const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
             font-size: 12px;
         }
 
-        . {
+        .btn-1 {
             background: linear-gradient(135deg, rgba(123, 31, 162, 0.9), rgba(156, 39, 176, 0.9));
         }
 
@@ -718,166 +725,192 @@ const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     document.head.appendChild(style);
 
     // Fetch and apply GitHub config settings
-let config;
-try {
-    const response = await fetch(
-        "https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.txt"
-    );
-    config = await response.json();
-} catch (error) {
-    console.error("Error fetching config:", error);
-    config = { GPLINKS: "on", VPLINK: "on", NEWAPI: "on" };
-}
-
-// Apply show/hide based on config
-if (config.GPLINKS === "n" || config.GPLINKS === "off") {
-    document.getElementById("btn-wrapper-1")?.classList.add("hidden");
-}
-if (config.VPLINK === "n" || config.VPLINK === "off") {
-    document.getElementById("btn-wrapper-2")?.classList.add("hidden");
-}
-if (config.NEWAPI === "n" || config.NEWAPI === "off") {
-    document.getElementById("btn-wrapper-3")?.classList.add("hidden");
-}
-
-// Language tab switching with translation update
-const langTabs = document.querySelectorAll('.lang-tab');
-langTabs.forEach(tab => {
-    tab.addEventListener('click', function () {
-        langTabs.forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-
-        const selectedLang = this.getAttribute('data-lang');
-        currentLang = selectedLang;
-        localStorage.setItem("selectedLanguage", selectedLang);
-        updateLanguage(selectedLang);
-    });
-});
-
-function updateLanguage(lang) {
-    const trans = translations[lang];
-    document.querySelectorAll('[data-translate]').forEach(el => {
-        const key = el.getAttribute('data-translate');
-        if (trans[key]) el.innerHTML = trans[key];
-    });
-}
-
-/* =========================================================
-   BUTTON LOGIC (FINAL MAPPING)
-   1st Button → GPLinks (24h)
-   2nd Button → VPLINK (24h)
-   3rd Button → 12h Rotation (AroLinks ↔ LinkShortify)
-   ========================================================= */
-
-// 1st Button – GPLinks (24h)
-document.getElementById("verify-btn1")?.addEventListener("click", async function () {
-    if (this.disabled) return;
-    this.disabled = true;
-
-    localStorage.setItem("verificationType", "24h");
-    const shortURL = await getShortenedURLWithGPLinks(verificationURL);
-    window.location.href = shortURL;
-});
-
-// 2nd Button – VPLINK (24h)
-document.getElementById("verify-btn2")?.addEventListener("click", async function () {
-    if (this.disabled) return;
-    this.disabled = true;
-
-    localStorage.setItem("verificationType", "24h");
-    const shortURL = await getShortenedURLWithVPLINK(verificationURL);
-    window.location.href = shortURL;
-});
-
-// 3rd Button – 12h Rotation (AroLinks ↔ LinkShortify)
-document.getElementById("verify-btn3")?.addEventListener("click", async function () {
-    if (this.disabled) return;
-    this.disabled = true;
-
-    localStorage.setItem("verificationType", "12h");
-
-    const lastUsed = localStorage.getItem("last12hShortener") || "aro";
-    let shortURL;
-
-    if (lastUsed === "aro") {
-        shortURL = await getShortenedURLWithAroLinks(verificationURL);
-        localStorage.setItem("last12hShortener", "linkshortify");
-    } else {
-        shortURL = await getShortenedURLWithLinkShortify(verificationURL);
-        localStorage.setItem("last12hShortener", "aro");
-    }
-
-    window.location.href = shortURL;
-});
-
-function generateToken() {
-    return Math.random().toString(36).substr(2, 10);
-}
-
-
-// VPLINK – 24h (2nd Button)
-async function getShortenedURLWithVPLINK(longURL) {
+    let config;
     try {
         const response = await fetch(
-            `https://vplink.in/api?api=${VPLINK_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`
+            "https://raw.githubusercontent.com/animeplayicu/manifest/refs/heads/main/config.txt"
         );
-        const data = await response.json();
+        config = await response.json();
+    } catch (error) {
+        console.error("Error fetching config:", error);
+        config = { LINKSHORTIFY: "on", GPLINKS: "on", NEWAPI: "on" };
+    }
 
-        if (data.status === "success" && data.shortenedUrl) {
-            return data.shortenedUrl;
+    // Apply show/hide based on config
+    if (config.LINKSHORTIFY === "n" || config.LINKSHORTIFY === "off") {
+        document.getElementById("btn-wrapper-1").classList.add("hidden");
+    }
+    if (config.GPLINKS === "n" || config.GPLINKS === "off") {
+        document.getElementById("btn-wrapper-2").classList.add("hidden");
+    }
+    if (config.NEWAPI === "n" || config.NEWAPI === "off") {
+        document.getElementById("btn-wrapper-3").classList.add("hidden");
+    }
+
+    // Language tab switching with translation update
+    const langTabs = document.querySelectorAll('.lang-tab');
+    langTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            langTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const selectedLang = this.getAttribute('data-lang');
+            currentLang = selectedLang;
+            localStorage.setItem("selectedLanguage", selectedLang);
+            
+            // Update all translatable elements
+            updateLanguage(selectedLang);
+        });
+    });
+
+    function updateLanguage(lang) {
+        const trans = translations[lang];
+        
+        // Update all elements with data-translate attribute
+        document.querySelectorAll('[data-translate]').forEach(element => {
+            const key = element.getAttribute('data-translate');
+            if (trans[key]) {
+                element.innerHTML = trans[key];
+            }
+        });
+    }
+
+    // Button 1: LinkShortify (24h)
+    document.getElementById("verify-btn1").addEventListener("click", async function () {
+        if (this.disabled) return;
+        this.disabled = true;
+        const btnTextElement = this.querySelector('.btn-text');
+        const originalText = btnTextElement.innerHTML;
+        btnTextElement.innerHTML = translations[currentLang].loading;
+        this.style.transform = 'scale(0.97)';
+        this.style.opacity = '0.7';
+        
+        localStorage.setItem("verificationType", "24h");
+        const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
+        if (shortURL !== verificationURL) {
+            window.location.href = shortURL;
         } else {
-            showErrorNotification("VPLINK API Error. Please try another option.");
+            btnTextElement.innerHTML = originalText;
+            this.disabled = false;
+            this.style.opacity = '1';
+        }
+    });
+    
+    // Button 2: GPLinks (24h)
+    document.getElementById("verify-btn2").addEventListener("click", async function () {
+        if (this.disabled) return;
+        this.disabled = true;
+        const btnTextElement = this.querySelector('.btn-text');
+        const originalText = btnTextElement.innerHTML;
+        btnTextElement.innerHTML = translations[currentLang].loading;
+        this.style.transform = 'scale(0.97)';
+        this.style.opacity = '0.7';
+        
+        localStorage.setItem("verificationType", "24h");
+        const shortURL = await getShortenedURLWithGPLinks(verificationURL);
+        if (shortURL !== verificationURL) {
+            window.location.href = shortURL;
+        } else {
+            btnTextElement.innerHTML = originalText;
+            this.disabled = false;
+            this.style.opacity = '1';
+        }
+    });
+    
+    // Button 3: AroLinks (12h)
+    document.getElementById("verify-btn3").addEventListener("click", async function () {
+        if (this.disabled) return;
+        this.disabled = true;
+        const btnTextElement = this.querySelector('.btn-text');
+        const originalText = btnTextElement.innerHTML;
+        btnTextElement.innerHTML = translations[currentLang].loading;
+        this.style.transform = 'scale(0.97)';
+        this.style.opacity = '0.7';
+        
+        localStorage.setItem("verificationType", "12h");
+        const shortURL = await getShortenedURLWithAroLinks(verificationURL);
+        if (shortURL !== verificationURL) {
+            window.location.href = shortURL;
+        } else {
+            btnTextElement.innerHTML = originalText;
+            this.disabled = false;
+            this.style.opacity = '1';
+        }
+    });
+
+    function generateToken() {
+        return Math.random().toString(36).substr(2, 10);
+    }
+
+    async function getShortenedURLWithLinkShortify(longURL) {
+        try {
+            const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                showErrorNotification("LinkShortify API Error. Please try another option.");
+                return longURL;
+            }
+        } catch (error) {
+            showErrorNotification("Network error with LinkShortify. Please try another option.");
+            console.error("LinkShortify Error:", error);
             return longURL;
         }
-    } catch (error) {
-        console.error("VPLINK Error:", error);
-        showErrorNotification("Network error with VPLINK. Please try another option.");
-        return longURL;
     }
-}
 
-// LinkShortify – 12h (3rd Button Rotation)
-async function getShortenedURLWithLinkShortify(longURL) {
-    try {
-        const response = await fetch(
-            `https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`
-        );
-        const data = await response.json();
-
-        if (data.status === "success" && data.shortenedUrl) {
-            return data.shortenedUrl;
-        } else {
-            showErrorNotification("LinkShortify API Error. Please try another option.");
+    async function getShortenedURLWithGPLinks(longURL) {
+        try {
+            const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                showErrorNotification(data.message || "GPLinks API Error. Please try another option.");
+                return longURL;
+            }
+        } catch (error) {
+            showErrorNotification("Network error with GPLinks. Please try another option.");
+            console.error("GPLinks Error:", error);
             return longURL;
         }
-    } catch (error) {
-        console.error("LinkShortify Error:", error);
-        showErrorNotification("Network error with LinkShortify. Please try another option.");
-        return longURL;
     }
-}
 
-/* ===================== ADDED CODE END ===================== */
+    async function getShortenedURLWithAroLinks(longURL) {
+        try {
+            const response = await fetch(`https://arolinks.com/api?api=${AROLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                showErrorNotification(data.message || "AroLinks API Error. Please try another option.");
+                return longURL;
+            }
+        } catch (error) {
+            showErrorNotification("Network error with AroLinks. Please try another option.");
+            console.error("AroLinks Error:", error);
+            return longURL;
+        }
+    }
 
-function showOneHourLeftNotification(expirationTime) {
-    if (localStorage.getItem("oneHourLeftNotificationShown") === "yes") return;
-    const formattedTime = new Date(Number(expirationTime)).toLocaleTimeString();
-    const trans = translations[currentLang];
-    const notice = document.createElement('div');
-    notice.id = 'verify-1h-warning';
-    notice.innerHTML = `
-        ${trans.oneHourWarning}<br>
-        <span style="font-size:15px;opacity:0.87;">${trans.expiresAt} ${formattedTime}</span>
-        <button id="verify-1h-done-btn">OK</button>
-    `;
-    document.body.appendChild(notice);
-    document.getElementById('verify-1h-done-btn').onclick = () => notice.remove();
-    setTimeout(() => {
-        if (notice.parentNode) notice.remove();
-    }, 12000);
-    localStorage.setItem("oneHourLeftNotificationShown", "yes");
-}
-
+    function showOneHourLeftNotification(expirationTime) {
+        if (localStorage.getItem("oneHourLeftNotificationShown") === "yes") return;
+        const formattedTime = new Date(Number(expirationTime)).toLocaleTimeString();
+        const trans = translations[currentLang];
+        const notice = document.createElement('div');
+        notice.id = 'verify-1h-warning';
+        notice.innerHTML = `
+            ${trans.oneHourWarning}<br>
+            <span style="font-size:15px;opacity:0.87;">${trans.expiresAt} ${formattedTime}</span>
+            <button id="verify-1h-done-btn">OK</button>
+        `;
+        document.body.appendChild(notice);
+        document.getElementById('verify-1h-done-btn').onclick = () => notice.remove();
+        setTimeout(() => {
+            if (notice.parentNode) notice.remove();
+        }, 12000);
+        localStorage.setItem("oneHourLeftNotificationShown", "yes");
+    }
 
     function showErrorNotification(message) {
         const errorNotice = document.createElement('div');
