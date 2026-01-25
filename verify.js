@@ -1,5 +1,6 @@
 export default async function verifyUser() {
     // API TOKENS
+    const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
     const AROLINKS_API_TOKEN = "98b5522d34aba1ef83a9197dd406ecfbfc6f8629";
     
@@ -15,8 +16,8 @@ export default async function verifyUser() {
             tutorialLink: "How To Skip Ads ?",
             description: "Click on any button below, complete the verification, and you'll be redirected back to the anime page.",
             btn1Text: "Skip Ads 1 (24h)",
-            btn2Text: "Skip Ads 1 (24h)",
-            btn3Text: "Skip Ads 2 (12h)",
+            btn2Text: "Skip Ads 2 (24h)",
+            btn3Text: "Skip Ads 3 (12h)",
             warningText: "If AdBlocker detected, please disable PrivateDNS in your device settings.",
             loading: "Loading...",
             oneHourWarning: "⏰ Only 1 hour left! <b>Your verification will expire soon.</b>",
@@ -27,8 +28,8 @@ export default async function verifyUser() {
             tutorialLink: "विज्ञापन कैसे छोड़ें?",
             description: "नीचे किसी भी बटन पर क्लिक करें, सत्यापन पूरा करें, और आपको एनीमे पेज पर वापस भेज दिया जाएगा।",
             btn1Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
-            btn2Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
-            btn3Text: "विज्ञापन छोड़ें 2 (12 घंटे)",
+            btn2Text: "विज्ञापन छोड़ें 2 (24 घंटे)",
+            btn3Text: "विज्ञापन छोड़ें 3 (12 घंटे)",
             warningText: "यदि एडब्लॉकर का पता चला है, तो कृपया अपनी डिवाइस सेटिंग्स में प्राइवेट DNS अक्षम करें।",
             loading: "लोड हो रहा है...",
             oneHourWarning: "⏰ केवल 1 घंटा बचा है! <b>आपका सत्यापन जल्द ही समाप्त हो जाएगा।</b>",
@@ -39,8 +40,8 @@ export default async function verifyUser() {
             tutorialLink: "ప్రకటనలను ఎలా దాటవేయాలి?",
             description: "దిగువ ఏదైనా బటన్‌పై క్లిక్ చేయండి, ధృవీకరణ పూర్తి చేయండి మరియు మీరు అనిమే పేజీకి తిరిగి మళ్లించబడతారు.",
             btn1Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
-            btn2Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
-            btn3Text: "ప్రకటనలను దాటవేయండి 2 (12 గంటలు)",
+            btn2Text: "ప్రకటనలను దాటవేయండి 2 (24 గంటలు)",
+            btn3Text: "ప్రకటనలను దాటవేయండి 3 (12 గంటలు)",
             warningText: "యాడ్‌బ్లాకర్ కనుగొనబడితే, దయచేసి మీ పరికర సెట్టింగ్‌లలో ప్రైవేట్DNS ని నిలిపివేయండి.",
             loading: "లోడ్ అవుతోంది...",
             oneHourWarning: "⏰ కేవలం 1 గంట మిగిలింది! <b>మీ ధృవీకరణ త్వరలో ముగుస్తుంది।</b>",
@@ -51,8 +52,8 @@ export default async function verifyUser() {
             tutorialLink: "விளம்பரங்களை எப்படி தவிர்ப்பது?",
             description: "கீழே உள்ள எந்த பொத்தானையும் கிளிக் செய்து, சரிபார்ப்பை முடித்து, நீங்கள் அனிமே பக்கத்திற்கு திருப்பிவிடப்படுவீர்கள்.",
             btn1Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
-            btn2Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
-            btn3Text: "விளம்பரங்களைத் தவிர் 2 (12 மணி)",
+            btn2Text: "விளம்பரங்களைத் தவிர் 2 (24 மணி)",
+            btn3Text: "விளம்பரங்களைத் தவிர் 3 (12 மணி)",
             warningText: "விளம்பரத் தடுப்பு கண்டறியப்பட்டால், உங்கள் சாதன அமைப்புகளில் தனிப்பட்ட DNS ஐ முடக்கவும்.",
             loading: "ஏற்றுகிறது...",
             oneHourWarning: "⏰ 1 மணி மட்டுமே உள்ளது! <b>உங்கள் சரிபார்ப்பு விரைவில் காலாவதியாகும்.</b>",
@@ -172,6 +173,15 @@ export default async function verifyUser() {
         <p class="description" data-translate="description">${translations[currentLang].description}</p>
 
         <div class="buttons">
+            <div class="btn-wrapper" id="btn-wrapper-1">
+                <button class="btn btn-1" id="verify-btn1">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                    </svg>
+                    <span class="btn-text" data-translate="btn1Text">${translations[currentLang].btn1Text}</span><p class="btn-note">LinkShortify</p>
+                </button>
+            </div>
+
             <div class="btn-wrapper" id="btn-wrapper-2">
                 <button class="btn btn-2" id="verify-btn2">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -424,7 +434,7 @@ export default async function verifyUser() {
             font-size: 12px;
         }
 
-        . {
+        .btn-1 {
             background: linear-gradient(135deg, rgba(123, 31, 162, 0.9), rgba(156, 39, 176, 0.9));
         }
 
@@ -723,11 +733,14 @@ export default async function verifyUser() {
         config = await response.json();
     } catch (error) {
         console.error("Error fetching config:", error);
-        config = { GPLINKS: "on", NEWAPI: "on" };
+        config = { LINKSHORTIFY: "on", GPLINKS: "on", NEWAPI: "on" };
     }
 
     // Apply show/hide based on config
-        if (config.GPLINKS === "n" || config.GPLINKS === "off") {
+    if (config.LINKSHORTIFY === "n" || config.LINKSHORTIFY === "off") {
+        document.getElementById("btn-wrapper-1").classList.add("hidden");
+    }
+    if (config.GPLINKS === "n" || config.GPLINKS === "off") {
         document.getElementById("btn-wrapper-2").classList.add("hidden");
     }
     if (config.NEWAPI === "n" || config.NEWAPI === "off") {
@@ -762,6 +775,27 @@ export default async function verifyUser() {
         });
     }
 
+    // Button 1: LinkShortify (24h)
+    document.getElementById("verify-btn1").addEventListener("click", async function () {
+        if (this.disabled) return;
+        this.disabled = true;
+        const btnTextElement = this.querySelector('.btn-text');
+        const originalText = btnTextElement.innerHTML;
+        btnTextElement.innerHTML = translations[currentLang].loading;
+        this.style.transform = 'scale(0.97)';
+        this.style.opacity = '0.7';
+        
+        localStorage.setItem("verificationType", "24h");
+        const shortURL = await getShortenedURLWithLinkShortify(verificationURL);
+        if (shortURL !== verificationURL) {
+            window.location.href = shortURL;
+        } else {
+            btnTextElement.innerHTML = originalText;
+            this.disabled = false;
+            this.style.opacity = '1';
+        }
+    });
+    
     // Button 2: GPLinks (24h)
     document.getElementById("verify-btn2").addEventListener("click", async function () {
         if (this.disabled) return;
@@ -808,7 +842,24 @@ export default async function verifyUser() {
         return Math.random().toString(36).substr(2, 10);
     }
 
-        async function getShortenedURLWithGPLinks(longURL) {
+    async function getShortenedURLWithLinkShortify(longURL) {
+        try {
+            const response = await fetch(`https://linkshortify.com/api?api=${LINKSHORTIFY_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
+            const data = await response.json();
+            if (data.status === "success" && data.shortenedUrl) {
+                return data.shortenedUrl;
+            } else {
+                showErrorNotification("LinkShortify API Error. Please try another option.");
+                return longURL;
+            }
+        } catch (error) {
+            showErrorNotification("Network error with LinkShortify. Please try another option.");
+            console.error("LinkShortify Error:", error);
+            return longURL;
+        }
+    }
+
+    async function getShortenedURLWithGPLinks(longURL) {
         try {
             const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
             const data = await response.json();
