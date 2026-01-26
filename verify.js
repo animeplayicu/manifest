@@ -2,54 +2,11 @@ export default async function verifyUser() {
     // API TOKENS
     const GPLINKS_API_TOKEN = "04b19e74ad5badb47de460b8dc774b2d7d4a8dd0";
     const AROLINKS_API_TOKEN = "98b5522d34aba1ef83a9197dd406ecfbfc6f8629";
-    const LINKSHORTIFY_API_TOKEN = "d96783da35322933221e17ba8198882034a07a34";
-
+    
     const BASE_URL = window.location.href.split("?verify=")[0];
     const storedToken = localStorage.getItem("userToken");
     const storedVerificationTime = localStorage.getItem("verifiedUntil");
     const currentTime = Date.now();
-    /* =====================================================
-       🔓 TRY 10 MIN FREE ACCESS (NEW FEATURE)
-       ===================================================== */
-    const FREE_DURATION = 10 * 60 * 1000; // 10 minutes
-    const FREE_COOLDOWN = 24 * 60 * 60 * 1000; // 24 hours
-
-    function isFreeAccessActive() {
-        const expiry = Number(localStorage.getItem("freeAccessExpiry") || 0);
-        return Date.now() < expiry;
-    }
-
-    function canUseFreeAccess() {
-        const last = Number(localStorage.getItem("lastFreeAccessTime") || 0);
-        return Date.now() - last >= FREE_COOLDOWN;
-    }
-
-    function startFreeAccess() {
-        const now = Date.now();
-        localStorage.setItem("lastFreeAccessTime", now);
-        localStorage.setItem("freeAccessExpiry", now + FREE_DURATION);
-    }
-
-    function clearFreeAccess() {
-        localStorage.removeItem("freeAccessExpiry");
-    }
-
-    function scheduleFreeExpiryCheck() {
-        const expiry = Number(localStorage.getItem("freeAccessExpiry"));
-        if (!expiry) return;
-        const delay = expiry - Date.now();
-        if (delay <= 0) return;
-        setTimeout(() => {
-            clearFreeAccess();
-            window.location.reload(); // popup auto after 10 min
-        }, delay);
-    }
-
-    // If free access active → skip verification popup
-    if (isFreeAccessActive()) {
-        scheduleFreeExpiryCheck();
-        return;
-    }
 
     // Language translations
     const translations = {
@@ -215,17 +172,6 @@ export default async function verifyUser() {
         <p class="description" data-translate="description">${translations[currentLang].description}</p>
 
         <div class="buttons">
-                    <!-- 🔓 TRY 10 MIN FREE BUTTON -->
-            <div class="btn-wrapper" id="btn-wrapper-free">
-                <button class="btn btn-free" id="free-access-btn">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 6v6l4 2"/>
-                    </svg>
-                    <span class="btn-text">Try 10 Min Free</span>
-                    <p class="btn-note">No verification • 10 min</p>
-                </button>
-            </div>
             <div class="btn-wrapper" id="btn-wrapper-2">
                 <button class="btn btn-2" id="verify-btn2">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,17 +207,8 @@ export default async function verifyUser() {
     document.body.appendChild(popup);
 
     // CSS INJECTION WITH RESPONSIVE DESIGN
-
-    
     const style = document.createElement("style");
-    style.innerHTML =
-    
-            /* ===== FREE ACCESS BUTTON CSS ===== */
-        .btn-free {
-            background: linear-gradient(135deg, #00c853, #009688);
-            border-color: rgba(0, 200, 83, 0.6);
-        }
-`
+    style.innerHTML = `
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
         @keyframes float {
@@ -824,20 +761,6 @@ export default async function verifyUser() {
             }
         });
     }
-    /* ================= FREE ACCESS HANDLER ================= */
-    const freeBtn = document.getElementById("free-access-btn");
-    if (freeBtn) {
-        if (!canUseFreeAccess()) {
-            freeBtn.disabled = true;
-        }
-
-        freeBtn.addEventListener("click", () => {
-            if (!canUseFreeAccess()) return;
-            startFreeAccess();
-            scheduleFreeExpiryCheck();
-            window.location.reload();
-        });
-    }
 
     // Button 2: GPLinks (24h)
     document.getElementById("verify-btn2").addEventListener("click", async function () {
@@ -860,35 +783,26 @@ export default async function verifyUser() {
         }
     });
     
-    // Button 3: AroLinks ↔ LinkShortify (12h ROTATION)
-document.getElementById("verify-btn3").addEventListener("click", async function () {
-    if (this.disabled) return;
-    this.disabled = true;
-
-    const btnTextElement = this.querySelector('.btn-text');
-    const originalText = btnTextElement.innerHTML;
-    btnTextElement.innerHTML = translations[currentLang].loading;
-    this.style.transform = 'scale(0.97)';
-    this.style.opacity = '0.7';
-
-    localStorage.setItem("verificationType", "12h");
-
-    // 🔁 50% rotation
-    const useLinkShortify = Math.random() < 0.5;
-
-    const shortURL = useLinkShortify
-        ? await getShortenedURLWithLinkShortify(verificationURL)
-        : await getShortenedURLWithAroLinks(verificationURL);
-
-    if (shortURL && shortURL !== verificationURL) {
-        window.location.href = shortURL;
-    } else {
-        btnTextElement.innerHTML = originalText;
-        this.disabled = false;
-        this.style.opacity = '1';
-    }
-});
-
+    // Button 3: AroLinks (12h)
+    document.getElementById("verify-btn3").addEventListener("click", async function () {
+        if (this.disabled) return;
+        this.disabled = true;
+        const btnTextElement = this.querySelector('.btn-text');
+        const originalText = btnTextElement.innerHTML;
+        btnTextElement.innerHTML = translations[currentLang].loading;
+        this.style.transform = 'scale(0.97)';
+        this.style.opacity = '0.7';
+        
+        localStorage.setItem("verificationType", "12h");
+        const shortURL = await getShortenedURLWithAroLinks(verificationURL);
+        if (shortURL !== verificationURL) {
+            window.location.href = shortURL;
+        } else {
+            btnTextElement.innerHTML = originalText;
+            this.disabled = false;
+            this.style.opacity = '1';
+        }
+    });
 
     function generateToken() {
         return Math.random().toString(36).substr(2, 10);
@@ -912,25 +826,6 @@ document.getElementById("verify-btn3").addEventListener("click", async function 
     }
 
     async function getShortenedURLWithAroLinks(longURL) {
-            // ================= LINKSHORTIFY API =================
-async function getShortenedURLWithLinkShortify(url) {
-    try {
-        const apiURL =
-            "https://linkshortify.com/api" +
-            "?api=d96783da35322933221e17ba8198882034a07a34" +
-            "&url=" + encodeURIComponent(url) +
-            "&format=text";
-
-        const res = await fetch(apiURL);
-        const shortUrl = await res.text();
-
-        return shortUrl && shortUrl.startsWith("http") ? shortUrl : url;
-    } catch (e) {
-        return url;
-    }
-}
-
-
         try {
             const response = await fetch(`https://arolinks.com/api?api=${AROLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
             const data = await response.json();
