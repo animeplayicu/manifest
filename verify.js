@@ -21,7 +21,8 @@ export default async function verifyUser() {
             loading: "Loading...",
             tooEarly: "Not too early! Please stay for at least 5 seconds.",
             oneHourWarning: "⏰ Only 1 hour left! <b>Your verification will expire soon.</b>",
-            expiresAt: "Expires at:"
+            expiresAt: "Expires at:",
+            popupBlocked: "⚠️ Popup blocked! Please disable popup blocker and try again."
         },
         hi: {
             title: "एक बार विज्ञापन छोड़ें और असीमित एनीमे मुफ्त देखें/डाउनलोड करें।",
@@ -34,7 +35,8 @@ export default async function verifyUser() {
             loading: "लोड हो रहा है...",
             tooEarly: "बहुत जल्दी नहीं! कृपया कम से कम 5 सेकंड रुकें।",
             oneHourWarning: "⏰ केवल 1 घंटा बचा है! <b>आपका सत्यापन जल्द ही समाप्त हो जाएगा।</b>",
-            expiresAt: "समाप्ति समय:"
+            expiresAt: "समाप्ति समय:",
+            popupBlocked: "⚠️ पॉपअप अवरुद्ध! कृपया पॉपअप अवरोधक अक्षम करें और पुनः प्रयास करें।"
         },
         te: {
             title: "ఒకసారి ప్రకటనలను దాటవేయండి మరియు అపరిమిత అనిమే ఉచితంగా చూడండి/డౌన్‌లోడ్ చేయండి.",
@@ -47,7 +49,8 @@ export default async function verifyUser() {
             loading: "లోడ్ అవుతోంది...",
             tooEarly: "చాలా తొందరగా కాదు! దయచేసి కనీసం 5 సెకన్లు ఉండండి।",
             oneHourWarning: "⏰ కేవలం 1 గంట మిగిలింది! <b>మీ ధృవీకరణ త్వరలో ముగుస్తుంది।</b>",
-            expiresAt: "ముగిసే సమయం:"
+            expiresAt: "ముగిసే సమయం:",
+            popupBlocked: "⚠️ పాపప్ బ్లాక్ చేయబడింది! దయచేసి పాపప్ బ్లాకర్‌ను నిలిపివేసి మళ్లీ ప్రయత్నించండి।"
         },
         ta: {
             title: "விளம்பரங்களை ஒருமுறை தவிர்க்கவும் மற்றும் வரம்பற்ற அனிமேவை இலவசமாக பார்க்கவும்/பதிவிறக்கவும்.",
@@ -60,7 +63,8 @@ export default async function verifyUser() {
             loading: "ஏற்றுகிறது...",
             tooEarly: "மிக விரைவில் இல்லை! குறைந்தது 5 விநாடிகள் தங்குங்கள்.",
             oneHourWarning: "⏰ 1 மணி மட்டுமே உள்ளது! <b>உங்கள் சரிபார்ப்பு விரைவில் காலாவதியாகும்.</b>",
-            expiresAt: "காலாவதியாகும் நேரம்:"
+            expiresAt: "காலாவதியாகும் நேரம்:",
+            popupBlocked: "⚠️ பாப்அப் தடுக்கப்பட்டது! பாப்அப் தடுப்பை முடக்கிவிட்டு மீண்டும் முயற்சிக்கவும்।"
         }
     };
 
@@ -94,6 +98,13 @@ export default async function verifyUser() {
         }
     })();
 
+    // Check if user clicked "Try Free" and should skip verification
+    if (sessionStorage.getItem('skipVerificationOnce') === 'true') {
+        sessionStorage.removeItem('skipVerificationOnce');
+        // Don't show verification popup - user has temporary access
+        return;
+    }
+
     if (storedVerificationTime && currentTime < storedVerificationTime) {
         if (window.location.href.includes("&verify=")) {
             window.location.href = BASE_URL;
@@ -117,10 +128,15 @@ export default async function verifyUser() {
     localStorage.setItem("userToken", newToken);
     const verificationURL = `${BASE_URL}?verify=${newToken}`;
 
-    // Load Monetag script
+    // Load Monetag script properly
     const monetagScript = document.createElement('script');
+    monetagScript.async = true;
+    monetagScript.setAttribute('data-cfasync', 'false');
     monetagScript.dataset.zone = '10556868';
     monetagScript.src = 'https://al5sm.com/tag.min.js';
+    monetagScript.onerror = function() {
+        console.warn('Monetag failed to load - ad blocker may be active');
+    };
     document.body.appendChild(monetagScript);
 
     // Create starfield canvas
@@ -782,7 +798,7 @@ export default async function verifyUser() {
         });
     }
 
-    // Button 2: Try Free with Popup Ad (Reload Required)
+    // Button 2: Try Free with Popup Ad (FIXED VERSION)
     let popupAdShown = false;
     let pageLoadTime = Date.now();
 
@@ -804,17 +820,44 @@ export default async function verifyUser() {
             popupAdShown = true;
             this.disabled = true;
             
-            // Trigger monetag popup
-            if (typeof window.monetag !== 'undefined') {
-                window.monetag.invoke();
+            // Method 1: Try to trigger Monetag popup by simulating user interaction
+            // This creates a brief popup that Monetag can intercept
+            const triggerPopup = window.open('', '_blank', 'width=1,height=1');
+            if (triggerPopup) {
+                triggerPopup.close();
             }
             
-            // After 5 seconds, hide the verification modal and allow content access
+            // Method 2: Also open a direct popup as backup
             setTimeout(() => {
-                overlay.remove();
-                popup.remove();
-                // User can now enjoy content, but verification will show again on reload
-            }, 5000);
+                const popupWindow = window.open(
+                    'about:blank',
+                    '_blank',
+                    'width=800,height=600,scrollbars=yes,resizable=yes'
+                );
+                
+                // Check if popup was blocked
+                if (!popupWindow || popupWindow.closed || typeof popupWindow.closed === 'undefined') {
+                    showErrorNotification(translations[currentLang].popupBlocked);
+                    this.disabled = false;
+                    popupAdShown = false;
+                    return;
+                }
+                
+                // If Monetag didn't intercept, close our popup
+                setTimeout(() => {
+                    if (popupWindow && !popupWindow.closed) {
+                        popupWindow.close();
+                    }
+                }, 100);
+            }, 100);
+            
+            // Set session flag to skip verification on next page load
+            sessionStorage.setItem('skipVerificationOnce', 'true');
+            
+            // Hide verification modal and reload page after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         }
     });
 
