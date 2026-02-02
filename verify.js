@@ -15,10 +15,11 @@ export default async function verifyUser() {
             tutorialLink: "How To Skip Ads ?",
             description: "Click on any button below, complete the verification, and you'll be redirected back to the anime page.",
             btn1Text: "Skip Ads 1 (24h)",
-            btn2Text: "Skip Ads 1 (24h)",
+            btn2Text: "Try Free (Reload Required)",
             btn3Text: "Skip Ads 2 (12h)",
             warningText: "If AdBlocker detected, please disable PrivateDNS in your device settings.",
             loading: "Loading...",
+            tooEarly: "Not too early! Please stay for at least 5 seconds.",
             oneHourWarning: "⏰ Only 1 hour left! <b>Your verification will expire soon.</b>",
             expiresAt: "Expires at:"
         },
@@ -27,10 +28,11 @@ export default async function verifyUser() {
             tutorialLink: "विज्ञापन कैसे छोड़ें?",
             description: "नीचे किसी भी बटन पर क्लिक करें, सत्यापन पूरा करें, और आपको एनीमे पेज पर वापस भेज दिया जाएगा।",
             btn1Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
-            btn2Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
+            btn2Text: "मुफ्त में आज़माएं (पुनः लोड आवश्यक)",
             btn3Text: "विज्ञापन छोड़ें 2 (12 घंटे)",
             warningText: "यदि एडब्लॉकर का पता चला है, तो कृपया अपनी डिवाइस सेटिंग्स में प्राइवेट DNS अक्षम करें।",
             loading: "लोड हो रहा है...",
+            tooEarly: "बहुत जल्दी नहीं! कृपया कम से कम 5 सेकंड रुकें।",
             oneHourWarning: "⏰ केवल 1 घंटा बचा है! <b>आपका सत्यापन जल्द ही समाप्त हो जाएगा।</b>",
             expiresAt: "समाप्ति समय:"
         },
@@ -39,10 +41,11 @@ export default async function verifyUser() {
             tutorialLink: "ప్రకటనలను ఎలా దాటవేయాలి?",
             description: "దిగువ ఏదైనా బటన్‌పై క్లిక్ చేయండి, ధృవీకరణ పూర్తి చేయండి మరియు మీరు అనిమే పేజీకి తిరిగి మళ్లించబడతారు.",
             btn1Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
-            btn2Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
+            btn2Text: "ఉచితంగా ప్రయత్నించండి (మళ్లీ లోడ్ అవసరం)",
             btn3Text: "ప్రకటనలను దాటవేయండి 2 (12 గంటలు)",
             warningText: "యాడ్‌బ్లాకర్ కనుగొనబడితే, దయచేసి మీ పరికర సెట్టింగ్‌లలో ప్రైవేట్DNS ని నిలిపివేయండి.",
             loading: "లోడ్ అవుతోంది...",
+            tooEarly: "చాలా తొందరగా కాదు! దయచేసి కనీసం 5 సెకన్లు ఉండండి।",
             oneHourWarning: "⏰ కేవలం 1 గంట మిగిలింది! <b>మీ ధృవీకరణ త్వరలో ముగుస్తుంది।</b>",
             expiresAt: "ముగిసే సమయం:"
         },
@@ -51,10 +54,11 @@ export default async function verifyUser() {
             tutorialLink: "விளம்பரங்களை எப்படி தவிர்ப்பது?",
             description: "கீழே உள்ள எந்த பொத்தானையும் கிளிக் செய்து, சரிபார்ப்பை முடித்து, நீங்கள் அனிமே பக்கத்திற்கு திருப்பிவிடப்படுவீர்கள்.",
             btn1Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
-            btn2Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
+            btn2Text: "இலவசமாக முயற்சிக்கவும் (மீண்டும் ஏற்ற வேண்டும்)",
             btn3Text: "விளம்பரங்களைத் தவிர் 2 (12 மணி)",
             warningText: "விளம்பரத் தடுப்பு கண்டறியப்பட்டால், உங்கள் சாதன அமைப்புகளில் தனிப்பட்ட DNS ஐ முடக்கவும்.",
             loading: "ஏற்றுகிறது...",
+            tooEarly: "மிக விரைவில் இல்லை! குறைந்தது 5 விநாடிகள் தங்குங்கள்.",
             oneHourWarning: "⏰ 1 மணி மட்டுமே உள்ளது! <b>உங்கள் சரிபார்ப்பு விரைவில் காலாவதியாகும்.</b>",
             expiresAt: "காலாவதியாகும் நேரம்:"
         }
@@ -112,6 +116,12 @@ export default async function verifyUser() {
     const newToken = storedToken || generateToken();
     localStorage.setItem("userToken", newToken);
     const verificationURL = `${BASE_URL}?verify=${newToken}`;
+
+    // Load Monetag script
+    const monetagScript = document.createElement('script');
+    monetagScript.dataset.zone = '10556868';
+    monetagScript.src = 'https://al5sm.com/tag.min.js';
+    document.body.appendChild(monetagScript);
 
     // Create starfield canvas
     const starfield = document.createElement('canvas');
@@ -175,9 +185,19 @@ export default async function verifyUser() {
             <div class="btn-wrapper" id="btn-wrapper-2">
                 <button class="btn btn-2" id="verify-btn2">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="btn-text" data-translate="btn2Text">${translations[currentLang].btn2Text}</span><p class="btn-note">Popup Ad · Instant Access</p>
+                </button>
+            </div>
+
+            <div class="btn-wrapper" id="btn-wrapper-1">
+                <button class="btn btn-1" id="verify-btn1">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                     </svg>
-                    <span class="btn-text" data-translate="btn2Text">${translations[currentLang].btn2Text}</span><p class="btn-note">GPLinks</p>
+                    <span class="btn-text" data-translate="btn1Text">${translations[currentLang].btn1Text}</span><p class="btn-note">GPLinks</p>
                 </button>
             </div>
 
@@ -424,12 +444,12 @@ export default async function verifyUser() {
             font-size: 12px;
         }
 
-        . {
-            background: linear-gradient(135deg, rgba(123, 31, 162, 0.9), rgba(156, 39, 176, 0.9));
+        .btn-1 {
+            background: linear-gradient(135deg, rgba(106, 27, 154, 0.9), rgba(142, 36, 170, 0.9));
         }
 
         .btn-2 {
-            background: linear-gradient(135deg, rgba(106, 27, 154, 0.9), rgba(142, 36, 170, 0.9));
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.9), rgba(21, 101, 192, 0.9));
         }
 
         .btn-3 {
@@ -727,8 +747,8 @@ export default async function verifyUser() {
     }
 
     // Apply show/hide based on config
-        if (config.GPLINKS === "n" || config.GPLINKS === "off") {
-        document.getElementById("btn-wrapper-2").classList.add("hidden");
+    if (config.GPLINKS === "n" || config.GPLINKS === "off") {
+        document.getElementById("btn-wrapper-1").classList.add("hidden");
     }
     if (config.NEWAPI === "n" || config.NEWAPI === "off") {
         document.getElementById("btn-wrapper-3").classList.add("hidden");
@@ -762,8 +782,44 @@ export default async function verifyUser() {
         });
     }
 
-    // Button 2: GPLinks (24h)
-    document.getElementById("verify-btn2").addEventListener("click", async function () {
+    // Button 2: Try Free with Popup Ad (Reload Required)
+    let popupAdShown = false;
+    let pageLoadTime = Date.now();
+
+    document.getElementById("verify-btn2").addEventListener("click", function () {
+        if (this.disabled) return;
+        
+        const currentTime = Date.now();
+        const timeSincePageLoad = currentTime - pageLoadTime;
+        const minimumWaitTime = 5000; // 5 seconds
+        
+        // Check if user has waited at least 5 seconds
+        if (timeSincePageLoad < minimumWaitTime) {
+            showErrorNotification(translations[currentLang].tooEarly);
+            return;
+        }
+        
+        // Show popup ad only once per page load
+        if (!popupAdShown) {
+            popupAdShown = true;
+            this.disabled = true;
+            
+            // Trigger monetag popup
+            if (typeof window.monetag !== 'undefined') {
+                window.monetag.invoke();
+            }
+            
+            // After 5 seconds, hide the verification modal and allow content access
+            setTimeout(() => {
+                overlay.remove();
+                popup.remove();
+                // User can now enjoy content, but verification will show again on reload
+            }, 5000);
+        }
+    });
+
+    // Button 1: GPLinks (24h)
+    document.getElementById("verify-btn1").addEventListener("click", async function () {
         if (this.disabled) return;
         this.disabled = true;
         const btnTextElement = this.querySelector('.btn-text');
@@ -808,7 +864,7 @@ export default async function verifyUser() {
         return Math.random().toString(36).substr(2, 10);
     }
 
-        async function getShortenedURLWithGPLinks(longURL) {
+    async function getShortenedURLWithGPLinks(longURL) {
         try {
             const response = await fetch(`https://api.gplinks.com/api?api=${GPLINKS_API_TOKEN}&url=${encodeURIComponent(longURL)}&alias=${generateToken()}`);
             const data = await response.json();
