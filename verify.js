@@ -15,7 +15,7 @@ export default async function verifyUser() {
             description: "Click on any button below, complete the verification, and you'll be redirected back to the anime page.",
             btn1Text: "Skip Ads 1 (24h)",
             btn2Text: "Skip Ads 1 (24h)",
-            btn3Text: "Skip Ads 2 (12h)",
+            btn3Text: "Skip Ads 2 (7h)",
             warningText: "If AdBlocker detected, please disable PrivateDNS in your device settings.",
             loading: "Loading...",
             oneHourWarning: "⏰ Only 1 hour left! <b>Your verification will expire soon.</b>",
@@ -27,7 +27,7 @@ export default async function verifyUser() {
             description: "नीचे किसी भी बटन पर क्लिक करें, सत्यापन पूरा करें, और आपको एनीमे पेज पर वापस भेज दिया जाएगा।",
             btn1Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
             btn2Text: "विज्ञापन छोड़ें 1 (24 घंटे)",
-            btn3Text: "विज्ञापन छोड़ें 2 (12 घंटे)",
+            btn3Text: "विज्ञापन छोड़ें 2 (7 घंटे)",
             warningText: "यदि एडब्लॉकर का पता चला है, तो कृपया अपनी डिवाइस सेटिंग्स में प्राइवेट DNS अक्षम करें।",
             loading: "लोड हो रहा है...",
             oneHourWarning: "⏰ केवल 1 घंटा बचा है! <b>आपका सत्यापन जल्द ही समाप्त हो जाएगा।</b>",
@@ -39,7 +39,7 @@ export default async function verifyUser() {
             description: "దిగువ ఏదైనా బటన్‌పై క్లిక్ చేయండి, ధృవీకరణ పూర్తి చేయండి మరియు మీరు అనిమే పేజీకి తిరిగి మళ్లించబడతారు.",
             btn1Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
             btn2Text: "ప్రకటనలను దాటవేయండి 1 (24 గంటలు)",
-            btn3Text: "ప్రకటనలను దాటవేయండి 2 (12 గంటలు)",
+            btn3Text: "ప్రకటనలను దాటవేయండి 2 (7 గంటలు)",
             warningText: "యాడ్‌బ్లాకర్ కనుగొనబడితే, దయచేసి మీ పరికర సెట్టింగ్‌లలో ప్రైవేట్DNS ని నిలిపివేయండి.",
             loading: "లోడ్ అవుతోంది...",
             oneHourWarning: "⏰ కేవలం 1 గంట మిగిలింది! <b>మీ ధృవీకరణ త్వరలో ముగుస్తుంది।</b>",
@@ -51,7 +51,7 @@ export default async function verifyUser() {
             description: "கீழே உள்ள எந்த பொத்தானையும் கிளிக் செய்து, சரிபார்ப்பை முடித்து, நீங்கள் அனிமே பக்கத்திற்கு திருப்பிவிடப்படுவீர்கள்.",
             btn1Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
             btn2Text: "விளம்பரங்களைத் தவிர் 1 (24 மணி)",
-            btn3Text: "விளம்பரங்களைத் தவிர் 2 (12 மணி)",
+            btn3Text: "விளம்பரங்களைத் தவிர் 2 (7 மணி)",
             warningText: "விளம்பரத் தடுப்பு கண்டறியப்பட்டால், உங்கள் சாதன அமைப்புகளில் தனிப்பட்ட DNS ஐ முடக்கவும்.",
             loading: "ஏற்றுகிறது...",
             oneHourWarning: "⏰ 1 மணி மட்டுமே உள்ளது! <b>உங்கள் சரிபார்ப்பு விரைவில் காலாவதியாகும்.</b>",
@@ -101,7 +101,7 @@ export default async function verifyUser() {
 
     if (userToken && userToken === storedToken) {
         const verificationType = localStorage.getItem("verificationType") || "24h";
-        const duration = (verificationType === "7h") ? 7 * 60 * 60 * 1000 : (verificationType === "12h" ? 12 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000);
+        const duration = (verificationType === "7h" || verificationType === "12h") ? 7 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
         localStorage.setItem("verifiedUntil", currentTime + duration);
         if (verificationType === "7h") {
             localStorage.removeItem("userToken");
@@ -188,7 +188,7 @@ export default async function verifyUser() {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
-                    <span class="btn-text" data-translate="btn3Text">${translations[currentLang].btn3Text}</span><p class="btn-note">AroLinks</p>
+                    <span class="btn-text" data-translate="btn3Text">${translations[currentLang].btn3Text}</span>
                 </button>
             </div>
         </div>
